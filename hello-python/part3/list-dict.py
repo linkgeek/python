@@ -1,9 +1,13 @@
+# list
 list_a = [1, 2, 3, 4, 5, 6, 7, 8]
+# 字典
 fruits = {'apple': 5, 'pear': 3, 'orange': 6}
 print(fruits['apple'])
 print(list_a[0])
 fruits['grape'] = 20
 print(fruits)
+# 删除
+fruits.pop('apple')
 
 # list_a = []
 # list_a.append('Python')
