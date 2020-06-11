@@ -61,7 +61,7 @@ def createPaper(filename, papername, list):
         subject.add_run('【%s】'% str(item.score))
         for idx, option in enumerate(item):
             doc.add_paragraph(('ABCD')[idx] + str(option))
-    doc.save('../data/'+filename)
+    doc.save('../data/' + filename)
 
 
 data = create_question()
