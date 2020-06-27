@@ -1,39 +1,67 @@
-###导入模块
 import requests
-from lxml import etree
-
-###网址
-url = "https://s.weibo.com/top/summary?Refer=top_hot&topnav=1&wvr=6"
-###模拟浏览器
-header = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36'}
+import json
+import xlwt
 
 
-###主函数
+def getData(page, news):
+    headers = {
+        "Host": "interface.sina.cn",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:74.0) Gecko/20100101 Firefox/74.0",
+        "Accept": "*/*",
+        "Accept-Language": "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Connection": "keep-alive",
+        "Referer": r"http://www.sina.com.cn/mid/search.shtml?range=all&c=news&q=%E6%97%85%E6%B8%B8&from=home&ie=utf-8",
+        "Cookie": "ustat=__172.16.93.31_1580710312_0.68442000; genTime=1580710312; vt=99; Apache=9855012519393.69.1585552043971; SINAGLOBAL=9855012519393.69.1585552043971; ULV=1585552043972:1:1:1:9855012519393.69.1585552043971:; historyRecord={'href':'https://news.sina.cn/','refer':'https://sina.cn/'}; SMART=0; dfz_loc=gd-default",
+        "TE": "Trailers"
+    }
+
+    params = {
+        "t": "",
+        "q": "旅游",
+        "pf": "0",
+        "ps": "0",
+        "page": page,
+        "stime": "2019-03-30",
+        "etime": "2020-03-31",
+        "sort": "rel",
+        "highlight": "1",
+        "num": "10",
+        "ie": "utf-8"
+    }
+
+    response = requests.get("https://interface.sina.cn/homepage/search.d.json?", params=params, headers=headers)
+    dic = json.loads(response.text)
+    news += dic["result"]["list"]
+
+    return news
+
+
+def writeData(news):
+    workbook = xlwt.Workbook(encoding='utf-8')
+    worksheet = workbook.add_sheet('新闻')
+
+    worksheet.write(0, 0, "标题")
+    worksheet.write(0, 1, "时间")
+    worksheet.write(0, 2, "媒体")
+    worksheet.write(0, 3, "网址")
+
+    for i in range(len(news)):
+        #print(news[i])
+        worksheet.write(i + 1, 0, news[i]["origin_title"])
+        worksheet.write(i + 1, 1, news[i]["datetime"])
+        worksheet.write(i + 1, 2, news[i]["media"])
+        worksheet.write(i + 1, 3, news[i]["url"])
+
+    workbook.save('../data/sina-news.xls')
+
+
 def main():
-    ###获取html页面
-    html = etree.HTML(requests.get(url, headers=header).text)
-    rank = html.xpath('//td[@class="td-01 ranktop"]/text()')
-    affair = html.xpath('//td[@class="td-02"]/a/text()')
-    href = html.xpath('//td[@class="td-02"]/a/@href')
-    view = html.xpath('//td[@class="td-02"]/span/text()')
-    # print(affair, href)
-    # exit(11)
-
-    top = affair[0]
-    affair = affair[1:]
-    print('{0:<10}\t{1:<40}'.format("top", top))
-
-    """
-    格式说明符前面有一个冒号：，{字段名!转换字段:格式说明符}。其中格式说明符本身可以是一个字段名
-    对齐方式：(<)左对齐；(>)右对齐；(^)居中；(=)在正负号（如果有的话）和数字之间填充，该对齐选项仅对数字类型有效。
-    """
-    # tplt = "{0:<10}\t{1:{3}<30}\t{2:{3}>20}"
-    tplt = "{0:<10}\t{1:{4}<16}\t{2:<10}\t{3:<10}"
-    # tplt = "{0:^6}\t{1:{4}^10}\t{2:^10}\t{3:^10}"
-    for i in range(0, len(affair)):
-        # print("{0:<10}\t{1:{3}<30}\t{2:{3}>20}\t{3:^10}".format(rank[i], affair[i], view[i], href[i], chr(12288)))
-        print(tplt .format(rank[i], affair[i], view[i], href[i], chr(12288)))
+    news = []
+    for i in range(1, 10):
+        news = getData(i, news)
+    writeData(news)
 
 
-main()
+if __name__ == '__main__':
+    main()
