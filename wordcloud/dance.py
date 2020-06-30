@@ -9,6 +9,7 @@ d = path.dirname(__file__)
 
 # Read the whole text.
 text = open(path.join(d, '../data/dan_mu.txt')).read()
+# with open("../data/dan_mu.txt", encoding="utf-8") as f:
 
 # read the mask image
 # taken from
@@ -24,7 +25,7 @@ wc = WordCloud(background_color="white", max_words=2000, mask=alice_mask,
 wc.generate(text)
 
 # store to file
-wc.to_file(path.join(d, "alice.png"))
+wc.to_file(path.join(d, "../data/temp/alice.png"))
 
 # show
 plt.imshow(wc, interpolation='bilinear')
