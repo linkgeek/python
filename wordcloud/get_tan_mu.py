@@ -1,3 +1,7 @@
+"""
+获取弹幕
+"""
+
 import requests
 import json
 import chardet
@@ -6,8 +10,8 @@ from pprint import pprint
 
 
 # 1.根据bvid请求得到cid
-def get_cid():
-    url = 'https://api.bilibili.com/x/player/pagelist?bvid=BV1PK4y1b7dt&jsonp=jsonp'
+def get_cid(bvid):
+    url = 'https://api.bilibili.com/x/player/pagelist?bvid=' + bvid + '&jsonp=jsonp'
     res = requests.get(url).text
     json_dict = json.loads(res)
     # pprint(json_dict)
@@ -32,13 +36,16 @@ def get_data(cid):
 
 
 # 3.保存弹幕列表
-def save_to_file(data):
-    with open("../data/dan_mu.txt", mode="w", encoding="utf-8") as f:
+def save_to_file(data, filename):
+    with open("../data/" + filename, mode="w", encoding="utf-8") as f:
         for i in data:
             f.write(i)
             f.write("\n")
 
 
-cid = get_cid()
+# bvid = 'BV1PK4y1b7dt' # mojito
+bvid = 'BV1e5411Y7cA'  # lindan
+filename = 'lindan/lindan_dan_mu.txt'
+cid = get_cid(bvid)
 data = get_data(cid)
-save_to_file(data)
+save_to_file(data, filename)
