@@ -32,7 +32,7 @@ word_count = pd.Series(all_words).value_counts()
 
 # 6 词云图的绘制
 # 6-1）读取背景图片
-back_picture = imread(r"god_bg.png")
+back_picture = imread(r"heart_bg.jpg")
 
 # 6-2）设置词云参数
 wc = WordCloud(font_path="simhei.ttf",  # 设置字体
@@ -52,5 +52,5 @@ plt.figure(figsize=(16, 8))
 # plt.figure(figsize=(a, b), dpi=dpi) figsize设置图形的大小，a为图形的宽，b为图形的高，单位为英寸；dpi为设置图形每英寸的点数
 plt.imshow(wc2)
 plt.axis("off")  # 隐藏坐标
-# plt.show()
-wc.to_file("god.png")
+plt.show()
+wc.to_file("heart2.png")
