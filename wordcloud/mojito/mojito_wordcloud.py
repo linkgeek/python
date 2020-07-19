@@ -8,7 +8,7 @@ from imageio import imread
 import warnings
 
 warnings.filterwarnings("ignore")
-
+ 
 # 2 读取文本文件，并使用lcut()方法进行分词
 with open("../data/dan_mu.txt", encoding="utf-8") as f:
     txt = f.read()
