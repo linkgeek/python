@@ -31,21 +31,21 @@ def get_data(cid):
     final_res = final_res.text
     pattern = re.compile('<d.*?>(.*?)</d>')
     data = pattern.findall(final_res)
-    # pprint(final_res)
+    # pprint(data)
     return data
 
 
 # 3.保存弹幕列表
-def save_to_file(data, filename):
-    with open("../data/" + filename, mode="w", encoding="utf-8") as f:
+def save_to_file(data, pathname):
+    with open(pathname, mode="w", encoding="utf-8") as f:
         for i in data:
             f.write(i)
             f.write("\n")
 
 
 # bvid = 'BV1PK4y1b7dt' # mojito
-bvid = 'BV1e5411Y7cA'  # lindan
-filename = 'lindan/lindan_dan_mu.txt'
+bvid = 'BV1e5411Y7cA'  # super-dan
+pathname = 'dan_mu.txt'
 cid = get_cid(bvid)
 data = get_data(cid)
-save_to_file(data, filename)
+save_to_file(data, pathname)
