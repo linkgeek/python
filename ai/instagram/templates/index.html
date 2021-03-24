@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>菜鸟学python——图片转卡通图</title>
+<meta name="description" content="">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="all,follow">
+
+<link rel="stylesheet" href="{{ url_for('static',filename='css/font-awesome.css') }}">
+<link rel="stylesheet" href="{{ url_for('static',filename='css/bootstrap.min.css') }}">
+<link rel="stylesheet" href="{{ url_for('static',filename='css/style.default.css') }}" id="theme-stylesheet">
+<link rel="stylesheet" href="{{ url_for('static',filename='css/custom.css') }}">
+	<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script><![endif]-->
+</head>
+<body>
+<div style="background-image: url('static/img/sunrise-1756274_1920.jpg')" class="main">
+  <div class="overlay"></div>
+  <div class="container">
+      <li><a href="https://space.bilibili.com/488689252?from=search&seid=17219711890001617362"><img style="height:30px; width: 30px;text-align:center;"  src="static/logo.jpg" /></a></li>
+<!--      <li><img style="height:30px; width: 30px;text-align:center;" href="https://space.bilibili.com/488689252?from=search&seid=17219711890001617362" src="static/logo.jpg" alt="" /></li>-->
+	<h1 class="cursive">菜鸟学python第368个案例</h1>
+	<h2 class="sub">图片转漫画 </h2>
+	    <div role="tabpanel" class="tab-pane" id="image">
+      <form action="/cartoon" method="post" enctype="multipart/form-data">
+        <div class="col-md-6 col-md-offset-3">
+             <div class="form-group">
+            <label for="mask">口罩</label>
+            <select class="form-control" name="mask">
+              <option value="0">N95-绿</option>
+              <option value="1">3M-白</option>
+              <option value="4">3M-灰</option>
+              <option value="3">HW-黑</option>
+              <option value="2">卡通-白</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <input type="file" name="image">
+          </div>
+          <div class="form-group"><input type="submit" class="btn btn-primary" value="上传"></div>
+        </div>
+      </form>
+    </div>
+
+       <div class="col-md-10 col-md-offset-1 tab-content" style="margin-top: 5%;">
+    {% if output %}
+     <a href="/static/out/{{output}}" download="result"><button  class="btn btn-success btn-xs">下载</button></a>
+     {% endif %}
+  </div>
+  </div>
+</div>
+<!-- JAVASCRIPT FILES -->
+<script src="javascripts/vendor/jquery-1.11.0.min.js"></script>
+<script src="{{ url_for('static',filename='js/bootstrap.min.js') }}"></script>
+<script src="{{ url_for('static',filename='js/jquery.cookie.js') }}"></script>
+<script src="{{ url_for('static',filename='js/front.js') }}"></script>
+
+</body>
+</html>

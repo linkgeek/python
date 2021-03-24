@@ -42,9 +42,5 @@ Ctrl + Shift + F8 查看所有断点
 Ctrl + N     快速查找类（也可查找当前工程中的文件，以文件名查找）
 Double Shift   任意位置查找
 
-
-
-pip升级失败：
-
-python -m ensurepip
-easy_install pip
+pip更新失败
+python -m ensurepip  然后执行 python -m pip install --upgrade pip  即可更新完毕。
