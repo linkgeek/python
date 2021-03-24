@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 import requests
 import json
 import xlwt
@@ -32,6 +34,8 @@ def getData(page, news):
 
     response = requests.get("https://interface.sina.cn/homepage/search.d.json?", params=params, headers=headers)
     dic = json.loads(response.text)
+    print(dic)
+    exit(400)
     news += dic["result"]["list"]
 
     return news

@@ -43,4 +43,7 @@ Ctrl + N     快速查找类（也可查找当前工程中的文件，以文件�
 Double Shift   任意位置查找
 
 pip更新失败
-python -m ensurepip  然后执行 python -m pip install --upgrade pip  即可更新完毕。
+
+1. python -m ensurepip  然后执行 python -m pip install --upgrade pip  即可更新完毕。
+
+2. easy_install --upgrade pip
