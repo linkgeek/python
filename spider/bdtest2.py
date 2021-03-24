@@ -29,25 +29,31 @@ def get_page_data(page, data):
 
     # 获取所有的文章标签
     liArr = dom.xpath(xpath_items)
+    #print(liArr)
+    #exit(11)
 
     # 分别对每一个文章标签进行操作 将每篇文章的链接 标题 评论数 点赞数放到一个字典里
     for item in liArr:
         t = {}
         _title = item.xpath(xpath_title)[0]
-        searchStr = "台湾"
-        if _title.find(searchStr) >= 0:
-            _href = item.xpath(xpath_href)[0]
-            # 获取子页内容
-            html = requests.get(_href, headers=headers)
-            html.encoding = html.apparent_encoding
-            dom2 = etree.HTML(html.text)
-            itemArr = dom.xpath(xpath_son_items)
+        #print(item)
+        #exit(22)
 
-            t['href'] = item.xpath(xpath_href)[0]
-            t['rank'] = item.xpath(xpath_rank)[0]
-            t['title'] = _title
-            t['view'] = item.xpath(xpath_view)[0]
-            data.append(t)
+        t['href'] = item.xpath(xpath_href)[0]
+        t['rank'] = item.xpath(xpath_rank)[0]
+        t['title'] = _title
+        t['view'] = item.xpath(xpath_view)[0]
+        data.append(t)
+
+        # searchStr = "台湾"
+        # if _title.find(searchStr) >= 0:
+        #     _href = item.xpath(xpath_href)[0]
+        #     # 获取子页内容
+        #     html = requests.get(_href, headers=headers)
+        #     html.encoding = html.apparent_encoding
+        #     dom2 = etree.HTML(html.text)
+        #     itemArr = dom.xpath(xpath_son_items)
+
 
 # 写入xls
 def write_xls(data):
@@ -76,8 +82,8 @@ def main():
     data = get_page_data(1, data)
     # for i in range(1, 2):
     # news = get_page_data(i, news)
-    # print(news)
-    # exit(11)
+    print(data)
+    exit(11)
     write_xls(data)
 
 
