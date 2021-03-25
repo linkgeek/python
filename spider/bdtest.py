@@ -1,7 +1,7 @@
 import requests
-import pprint
 import re
 import urllib.parse
+from lxml import etree
 
 url = 'https://www.baidu.com/'
 
@@ -12,18 +12,39 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36',
 }
 
-response = requests.get(url, headers=headers).content.decode('utf-8')
-print(response)
-exit(123)
 
-# 获取关键字
-pat = '"pure_title": "(.*?)"'
-keyword = re.findall(pat, response, re.S)
-print(len(keyword))
+def get_data():
+    response = requests.get(url, headers=headers).content.decode('utf-8')
 
-for hot_word in keyword:
-    # 汉字不符合url标准，所以这里需要进行url编码
-    i = urllib.parse.quote(hot_word, encoding='utf-8', errors='replace')
-    # url构建
-    link = f'https://www.baidu.com/s?cl=3&tn=baidutop10&fr=top1000&wd={i}&rsv_idx=2&rsv_dl=fyb_n_homepage&hisfilter=1'
-    print(link)
+    # 获取关键字
+    pat = '"pure_title": "(.*?)"'
+    keyword = re.findall(pat, response, re.S)
+    print(len(keyword))
+
+    for hot_word in keyword:
+        # 汉字不符合url标准，所以这里需要进行url编码
+        i = urllib.parse.quote(hot_word, encoding='utf-8', errors='replace')
+        # url构建
+        link = f'https://www.baidu.com/s?cl=3&tn=baidutop10&fr=top1000&wd={i}&rsv_idx=2&rsv_dl=fyb_n_homepage&hisfilter=1'
+        print(link)
+
+
+def get_data2():
+    # 发起请求
+    html = requests.get('https://www.baidu.com/', headers=headers)
+    html2 = html.content.decode('utf-8')
+    doc = etree.HTML(html2)
+
+    # 此时responses是一个list[]
+    response = doc.xpath('//textarea [@id="hotsearch_data"]/text()')
+    print(response)
+    exit(234)
+
+    # 此时遍历response得到item(item为字典类型)
+    for item in response:
+        # 通过key获取item的value----item2
+        item2 = eval(item).get("hotsearch")  # 此处需要用eval智能识别item的类型
+        # item2也是一个list,再次遍历得到item3
+        for item3 in item2:
+            # item3也是字典类型，通过key('pure_title')得到value
+            print(item3.get('pure_title'))

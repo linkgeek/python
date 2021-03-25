@@ -1,6 +1,7 @@
 import requests
 from lxml import etree
 import xlwt
+import time
 
 base_url = 'http://ac38.xyz/'
 url = 'http://ac38.xyz/list.php?class=guochan&page='
@@ -56,18 +57,21 @@ def get_page_data(page, data):
         item_html.encoding = item_html.apparent_encoding
         dom2 = etree.HTML(item_html.text)
         t['href'] = base_url + _href
-        print(dom2.xpath(xpath_down))
+        print(idx + 1, dom2.xpath(xpath_down))
         # exit(555)
         torrent_arr = dom2.xpath(xpath_down)
         torrent = ''
         if torrent_arr:
             torrent = torrent_arr[0]
-        t['torrent'] = base_url + torrent
+        #t['torrent'] = base_url + torrent
+        #xlwt.Formula('"test " & HYPERLINK("http://google.com")')
+        t['torrent'] = xlwt.Formula('HYPERLINK("{}"; "{}")'.format(base_url + torrent, base_url + torrent))
 
         #print(t)
         #exit(33)
         data.append(t)
 
+        time.sleep(3)
 
         # search_str = "台湾"
         # if _title.find(search_str) >= 0:
@@ -107,8 +111,8 @@ def main():
     data = get_page_data(1, data)
     #for i in range(1, 2):
         #data = get_page_data(i, data)
-    print(data)
-    exit(66)
+    #print(data)
+    #exit(66)
     write_xls(data)
 
 
