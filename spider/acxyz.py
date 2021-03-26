@@ -1,8 +1,13 @@
+#!/usr/bin/python
+# -*- coding: UTF-8 -*-
+
 import requests
 from lxml import etree
 import xlwt
 import time
 import re
+import base64
+import copy
 
 base_url = 'http://ac38.xyz/'
 url = 'http://ac38.xyz/list.php?class=guochan&page='
@@ -15,109 +20,152 @@ headers = {
 }
 
 # 获取所有 li标签
-xpath_items = '//ul[@class="list"]/li[position()>1]'
+xpath_items = '//div[@id="content"]/div/ul/li[position()>1][position()<last()]'
 xpath_down = '//div[@class="download"]/p[1]/a/@href'
 
 # 对每个 li标签再提取
+xpath_tip = './text()'
 xpath_href = './a/@href'
-xpath_title = './a//text()'
-xpath_title_basic = './a/text()'
+xpath_title = './/text()'
 
 
 # 分页获取
 def get_page_data(page, data, search_str):
     page_url = url + str(page)
-
-    r = requests.get(page_url, headers=headers)
+    r = requests.get(page_url)
     r.encoding = r.apparent_encoding
     dom = etree.HTML(r.text)
 
-
     # 获取所有的文章标签
     li_arr = dom.xpath(xpath_items)
-    #print(li_arr)
-    #exit(22)
 
     # 分别对每一个文章标签进行操作 将每篇文章的链接 标题 评论数 点赞数放到一个字典里
     for idx, li_each in enumerate(li_arr):
+        t = {}
+        # ele = li_each.xpath('.//script | //noscript')
+        # for e in ele:
+        #     e.getparent().remove(e)
 
-        # _title = li_each.xpath(xpath_title)
-        #for bad in li_each.xpath('./a/script'):
-            #bad.getparent().remove(bad)
+        _str = li_each.xpath('./a//text()')[0]
+        # print(_str)
 
-        content = li_each.xpath("string(.)")
-        content2 = li_each.xpath('./a')
-        #content = ' '.join([i.strip() for i in content])[1:]
-        print(content)
-        print(2, content2)
-        exit(22)
+        # 截取
+        str_arr = _str.split("\'")
+        # print(idx + 1, _str, str_arr)
 
-        tip_title = ''.join(li_each.xpath(xpath_title)).strip()
-        _title = ''.join(li_each.xpath(xpath_title_basic)).lstrip().rstrip()
-        print(idx + 1, tip_title, _title)
-        exit(1)
+        if len(str_arr) == 0:
+            continue
 
-        search_str = "ymdd"
+        _encode = str_arr[1]
+        # 解码
+        _title = base64.b64decode(_encode).decode()
+        # print(_title)
+
+        _tip = li_each.xpath(xpath_tip)[0]
+        _href = li_each.xpath(xpath_href)[0]
+        t['id'] = str(idx + 1)
+        t['title'] = _tip + _title
+        # t['href'] = base_url + _href
+        full_href = base_url + _href
+        t['href'] = xlwt.Formula('HYPERLINK("{}"; "{}")'.format(full_href, full_href))
+
+        print('Page: ' + str(page) + ', No: ' + str(idx + 1))
+
+        # search_str = "极品"
         if _title.find(search_str) >= 0:
-            t = {}
-            _href = li_each.xpath(xpath_href)[0]
+            print('Page: ' + str(page) + ', No: ' + str(idx + 1) + ', Title: ' + t["title"] + ', Href: ' + full_href)
+
             # 获取子页内容
-            son_href = base_url + _href
-            item_html = requests.get(son_href, headers=headers)
+            item_html = requests.get(full_href)
             item_html.encoding = item_html.apparent_encoding
-            dom2 = etree.HTML(item_html.text)
+            down_dom = etree.HTML(item_html.text)
+            torrent_arr = down_dom.xpath(xpath_down)
 
-            print(idx + 1, dom2.xpath(xpath_down))
-            # exit(555)
-            t['id'] = idx + 1
-            t['title'] = tip_title + _title
-            t['href'] = base_url + _href
-
-            torrent_arr = dom2.xpath(xpath_down)
-            torrent = ''
             if torrent_arr:
                 torrent = torrent_arr[0]
-            # t['torrent'] = base_url + torrent
-            # xlwt.Formula('"test " & HYPERLINK("http://google.com")')
-            t['torrent'] = xlwt.Formula('HYPERLINK("{}"; "{}")'.format(base_url + torrent, base_url + torrent))
-            # print(t)
-            # exit(33)
-            data.append(t)
-
-        time.sleep(3)
-
+                t['down'] = xlwt.Formula('HYPERLINK("{}"; "{}")'.format(base_url + torrent, base_url + torrent))
+                # print(t)
+                # exit(33)
+                data.append(t)
+                time.sleep(2)
     return data
+
+
+# 获取每列所占用的最大列宽
+def get_max_col(max_list):
+    line_list = []
+    # i表示行，j代表列
+    for j in range(len(max_list[0])):
+        line_num = []
+        for i in range(len(max_list)):
+            line_num.append(max_list[i][j])  # 将每列的宽度存入line_num
+        line_list.append(max(line_num))  # 将每列最大宽度存入line_list
+    return line_list
 
 
 # 写入xls
 def write_xls(data):
-    workbook = xlwt.Workbook(encoding='utf-8')
-    worksheet = workbook.add_sheet('资源')
+    # 创建一个Workbook对象
+    workbook = xlwt.Workbook(encoding='utf-8', style_compression=0)
+    # 创建一个sheet对象
+    worksheet = workbook.add_sheet('资源', cell_overwrite_ok=True)
+
+    row_num = 0  # 记录写入行数
+    col_list = []  # 记录每行宽度
 
     worksheet.write(0, 0, "序号")
     worksheet.write(0, 1, "标题")
     worksheet.write(0, 2, "链接")
     worksheet.write(0, 3, "下载")
 
-    for i in range(len(data)):
-        # print(news[i])
-        worksheet.write(i + 1, 0, data[i]["id"])
-        worksheet.write(i + 1, 1, data[i]["title"])
-        worksheet.write(i + 1, 2, data[i]["href"])
-        worksheet.write(i + 1, 3, data[i]["torrent"])
+    col_num = [0 for x in range(0, len(data))]
 
+    for i in range(len(data)):
+        worksheet.write(i + 1, 0, data[i]["id"])
+        col_num[0] = len(data[i]["id"].encode('gb18030'))  # 计算每列值的大小
+
+        worksheet.write(i + 1, 1, data[i]["title"])
+        col_num[1] = len(data[i]["title"].encode('gb18030'))  # 计算每列值的大小
+
+        worksheet.write(i + 1, 2, data[i]["href"])
+        # col_num[2] = len(data[i]["href"].encode('gb18030'))  # 计算每列值的大小
+
+        worksheet.write(i + 1, 3, data[i]["down"])
+        # col_num[3] = len(data[i]["down"].encode('gb18030'))  # 计算每列值的大小
+
+        col_list.append(copy.copy(col_num))  # 记录一行每列写入的长度
+        row_num += 1
+
+    # 获取每列最大宽度
+    col_max_num = get_max_col(col_list)
+    print(col_max_num) # [2, 140, 0]
+    exit()
+
+    # 设置自适应列宽
+    for i in range(0, len(col_max_num)):
+        # 256*字符数得到excel列宽,为了不显得特别紧凑添加两个字符宽度
+        worksheet.col(i).width = 256 * (col_max_num[i] + 2)
+
+    # 保存excel文件
     workbook.save('../data/acxyz.xls')
 
 
 def main():
     data = []
-    search_str = "台湾"
-    data = get_page_data(1, data, search_str)
-    # for i in range(1, 2):
-    # data = get_page_data(i, data, search_str)
+    search_str = "金三角"
+    # data = get_page_data(1, data, search_str)
+    for i in range(1, 2):
+        print(i)
+        data = get_page_data(i, data, search_str)
+        time.sleep(2)
+
     # print(data)
     # exit(66)
-    write_xls(data)
+    if len(data):
+        write_xls(data)
+    else:
+        print('data is empty!')
+
 
 
 if __name__ == '__main__':
