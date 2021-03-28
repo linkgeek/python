@@ -5,12 +5,12 @@ import requests
 from lxml import etree
 import xlwt
 import time
-import re
 import base64
 import copy
 
 base_url = 'http://ac38.xyz/'
-url = 'http://ac38.xyz/list.php?class=guochan&page='
+url = 'http://ac38.xyz/list.php?class=guochan'
+# url = 'http://ac38.xyz/list.php?class=riben'
 
 headers = {
     'Host': 'ac38.xyz',
@@ -31,13 +31,15 @@ xpath_title = './/text()'
 
 # 分页获取
 def get_page_data(page, data, search_str):
-    page_url = url + str(page)
+    page_url = url + '&page=' + str(page)
     r = requests.get(page_url)
     r.encoding = r.apparent_encoding
     dom = etree.HTML(r.text)
 
     # 获取所有的文章标签
     li_arr = dom.xpath(xpath_items)
+    # print(page_url, li_arr)
+    # exit()
 
     # 分别对每一个文章标签进行操作 将每篇文章的链接 标题 评论数 点赞数放到一个字典里
     for idx, li_each in enumerate(li_arr):
@@ -60,6 +62,7 @@ def get_page_data(page, data, search_str):
         # 解码
         _title = base64.b64decode(_encode).decode()
         # print(_title)
+        # exit(22)
 
         _tip = li_each.xpath(xpath_tip)[0]
         _href = li_each.xpath(xpath_href)[0]
@@ -69,11 +72,9 @@ def get_page_data(page, data, search_str):
         full_href = base_url + _href
         t['href'] = xlwt.Formula('HYPERLINK("{}"; "{}")'.format(full_href, full_href))
 
-        print('Page: ' + str(page) + ', No: ' + str(idx + 1))
-
-        # search_str = "极品"
         if _title.find(search_str) >= 0:
-            print('Page: ' + str(page) + ', No: ' + str(idx + 1) + ', Title: ' + t["title"] + ', Href: ' + full_href)
+            print('Page: ' + str(page) + ', No: ' + str(idx + 1) + ', Title: ' + t["title"] + ', Href: ' + full_href,
+                  '\n')
 
             # 获取子页内容
             item_html = requests.get(full_href)
@@ -87,7 +88,8 @@ def get_page_data(page, data, search_str):
                 # print(t)
                 # exit(33)
                 data.append(t)
-                time.sleep(2)
+                time.sleep(3)
+
     return data
 
 
@@ -110,36 +112,34 @@ def write_xls(data):
     # 创建一个sheet对象
     worksheet = workbook.add_sheet('资源', cell_overwrite_ok=True)
 
-    row_num = 0  # 记录写入行数
-    col_list = []  # 记录每行宽度
-
     worksheet.write(0, 0, "序号")
     worksheet.write(0, 1, "标题")
     worksheet.write(0, 2, "链接")
     worksheet.write(0, 3, "下载")
 
-    col_num = [0 for x in range(0, len(data))]
+    # 列数
+    col_num = [0 for x in range(0, len(data) + 1)]
+    # print(data, '\n', col_num, '\n')
+    # exit()
+
+    # 记录每行每列宽度
+    col_list = []
 
     for i in range(len(data)):
         worksheet.write(i + 1, 0, data[i]["id"])
-        col_num[0] = len(data[i]["id"].encode('gb18030'))  # 计算每列值的大小
-
         worksheet.write(i + 1, 1, data[i]["title"])
-        col_num[1] = len(data[i]["title"].encode('gb18030'))  # 计算每列值的大小
-
         worksheet.write(i + 1, 2, data[i]["href"])
-        # col_num[2] = len(data[i]["href"].encode('gb18030'))  # 计算每列值的大小
-
         worksheet.write(i + 1, 3, data[i]["down"])
-        # col_num[3] = len(data[i]["down"].encode('gb18030'))  # 计算每列值的大小
 
+        col_num[0] = len(data[i]["id"].encode('gb18030'))  # 计算每列值的大小
+        col_num[1] = len(data[i]["title"].encode('gb18030'))  # 计算每列值的大小
         col_list.append(copy.copy(col_num))  # 记录一行每列写入的长度
-        row_num += 1
 
     # 获取每列最大宽度
-    col_max_num = get_max_col(col_list)
-    print(col_max_num) # [2, 140, 0]
-    exit()
+    # col_max_num = get_max_col(col_list)
+    col_max_num = [2, 120, 60, 40, 0]
+    # print(col_max_num, '\n')
+    # exit()
 
     # 设置自适应列宽
     for i in range(0, len(col_max_num)):
@@ -147,25 +147,30 @@ def write_xls(data):
         worksheet.col(i).width = 256 * (col_max_num[i] + 2)
 
     # 保存excel文件
-    workbook.save('../data/acxyz.xls')
+    workbook.save('D:/Code/python/data/acxyz.xls')
 
 
 def main():
+    start_time = time.perf_counter()
     data = []
-    search_str = "金三角"
+    search_str = "Melody Marks"
     # data = get_page_data(1, data, search_str)
-    for i in range(1, 2):
-        print(i)
+    for i in range(1, 91):
         data = get_page_data(i, data, search_str)
-        time.sleep(2)
+        print('page' + str(i) + ' done!')
+        time.sleep(3)
 
-    # print(data)
+    # print('\n', data)
     # exit(66)
+
     if len(data):
+        print('done! 共 {} 条'.format(len(data)))
         write_xls(data)
     else:
         print('data is empty!')
 
+    delta = time.perf_counter() - start_time
+    print("运行时间：{}秒".format(delta))
 
 
 if __name__ == '__main__':
