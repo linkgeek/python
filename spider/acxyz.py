@@ -9,8 +9,8 @@ import base64
 import copy
 
 base_url = 'http://ac38.xyz/'
-url = 'http://ac38.xyz/list.php?class=guochan'
-# url = 'http://ac38.xyz/list.php?class=riben'
+# url = 'http://ac38.xyz/list.php?class=guochan'
+url = 'http://ac38.xyz/list.php?class=riben'
 
 headers = {
     'Host': 'ac38.xyz',
@@ -153,9 +153,9 @@ def write_xls(data):
 def main():
     start_time = time.perf_counter()
     data = []
-    search_str = "Melody Marks"
+    search_str = "YMDD"
     # data = get_page_data(1, data, search_str)
-    for i in range(1, 91):
+    for i in range(1, 67):
         data = get_page_data(i, data, search_str)
         print('page' + str(i) + ' done!')
         time.sleep(3)
