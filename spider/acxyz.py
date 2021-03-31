@@ -106,7 +106,7 @@ def get_max_col(max_list):
 
 
 # 写入xls
-def write_xls(data):
+def write_xls(data, file='acxyz'):
     # 创建一个Workbook对象
     workbook = xlwt.Workbook(encoding='utf-8', style_compression=0)
     # 创建一个sheet对象
@@ -147,15 +147,16 @@ def write_xls(data):
         worksheet.col(i).width = 256 * (col_max_num[i] + 2)
 
     # 保存excel文件
-    workbook.save('D:/Code/python/data/acxyz.xls')
+    workbook.save('D:/Code/python/data/' + file + '.xls')
 
 
 def main():
     start_time = time.perf_counter()
     data = []
-    search_str = "YMDD"
+    search_str = "SY"
+    file_name = "acsy"
     # data = get_page_data(1, data, search_str)
-    for i in range(1, 67):
+    for i in range(1, 65):
         data = get_page_data(i, data, search_str)
         print('page' + str(i) + ' done!')
         time.sleep(3)
@@ -165,7 +166,7 @@ def main():
 
     if len(data):
         print('done! 共 {} 条'.format(len(data)))
-        write_xls(data)
+        write_xls(data, file_name)
     else:
         print('data is empty!')
 
