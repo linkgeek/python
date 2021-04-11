@@ -9,12 +9,11 @@ import base64
 import copy
 
 base_url = 'http://ac38.xyz/'
-# url = 'http://ac38.xyz/list.php?class=guochan'
-url = 'http://ac38.xyz/list.php?class=riben'
+url = 'http://ac38.xyz/list.php?class=guochan'
+# url = 'http://ac38.xyz/list.php?class=riben'
 
 headers = {
     'Host': 'ac38.xyz',
-    # 'Referer': 'https://www.baidu.com/',
     'Cookie': '__cfduid=de73110f83595c0f98b2d5f7bbadc485a1616254803; _ga=GA1.1.2006431600.1616254805; _ga_Q3P79YL0DW=GS1.1.1616593392.5.1.1616600045.0',
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36',
 }
@@ -38,37 +37,25 @@ def get_page_data(page, data, search_str):
 
     # 获取所有的文章标签
     li_arr = dom.xpath(xpath_items)
-    # print(page_url, li_arr)
-    # exit()
 
     # 分别对每一个文章标签进行操作 将每篇文章的链接 标题 评论数 点赞数放到一个字典里
     for idx, li_each in enumerate(li_arr):
         t = {}
-        # ele = li_each.xpath('.//script | //noscript')
-        # for e in ele:
-        #     e.getparent().remove(e)
 
         _str = li_each.xpath('./a//text()')[0]
-        # print(_str)
 
         # 截取
         str_arr = _str.split("\'")
-        # print(idx + 1, _str, str_arr)
-
         if len(str_arr) == 0:
             continue
 
         _encode = str_arr[1]
         # 解码
         _title = base64.b64decode(_encode).decode()
-        # print(_title)
-        # exit(22)
-
         _tip = li_each.xpath(xpath_tip)[0]
         _href = li_each.xpath(xpath_href)[0]
         t['id'] = str(idx + 1)
         t['title'] = _tip + _title
-        # t['href'] = base_url + _href
         full_href = base_url + _href
         t['href'] = xlwt.Formula('HYPERLINK("{}"; "{}")'.format(full_href, full_href))
 
@@ -85,8 +72,6 @@ def get_page_data(page, data, search_str):
             if torrent_arr:
                 torrent = torrent_arr[0]
                 t['down'] = xlwt.Formula('HYPERLINK("{}"; "{}")'.format(base_url + torrent, base_url + torrent))
-                # print(t)
-                # exit(33)
                 data.append(t)
                 time.sleep(3)
 
@@ -119,9 +104,6 @@ def write_xls(data, file='acxyz'):
 
     # 列数
     col_num = [0 for x in range(0, len(data) + 1)]
-    # print(data, '\n', col_num, '\n')
-    # exit()
-
     # 记录每行每列宽度
     col_list = []
 
@@ -153,13 +135,12 @@ def write_xls(data, file='acxyz'):
 def main():
     start_time = time.perf_counter()
     data = []
-    search_str = "SY"
-    file_name = "acsy"
-    # data = get_page_data(1, data, search_str)
-    for i in range(1, 65):
+    search_str = "SexArt" # 91汝工作室91ru 童颜混血tyhx 俄罗斯els 乌克兰wkl 洋妞yn 留学lx 欧洲euo
+    file_name = "sexart"
+    for i in range(1, 141):
         data = get_page_data(i, data, search_str)
         print('page' + str(i) + ' done!')
-        time.sleep(3)
+        time.sleep(2)
 
     # print('\n', data)
     # exit(66)
