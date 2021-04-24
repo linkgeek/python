@@ -7,6 +7,7 @@ import xlwt
 import time
 import base64
 import copy
+import random
 
 base_url = 'http://ac38.xyz/'
 url = 'http://ac38.xyz/list.php?class=guochan'
@@ -16,6 +17,10 @@ headers = {
     'Host': 'ac38.xyz',
     'Cookie': '__cfduid=de73110f83595c0f98b2d5f7bbadc485a1616254803; _ga=GA1.1.2006431600.1616254805; _ga_Q3P79YL0DW=GS1.1.1616593392.5.1.1616600045.0',
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36',
+
+    #'Host': 'ap.lijit.com',
+    #'Cookie': 'ljt_reader=c3baa883549c172a9fcf1b58;Version=1;Domain=.lijit.com;Path=/;Max-Age=31536000;Secure; SameSite=None;',
+    #'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36 Edg/90.0.818.46',
 }
 
 # 获取所有 li标签
@@ -31,51 +36,60 @@ xpath_title = './/text()'
 # 分页获取
 def get_page_data(page, data, search_str):
     page_url = url + '&page=' + str(page)
-    r = requests.get(page_url)
-    r.encoding = r.apparent_encoding
-    dom = etree.HTML(r.text)
+    while True:
+        try:
+            r = requests.get(page_url, headers=headers, timeout=15)
+            r.raise_for_status()  # 如果响应状态码不是 200，就主动抛出异常
+        except requests.exceptions.RequestException as e:
+            print(e)
+            print('ConnectionError -- please wait 3 seconds')
+            time.sleep(3)
+        else:
+            r.encoding = r.apparent_encoding
+            dom = etree.HTML(r.text)
+            r.close()
 
-    # 获取所有的文章标签
-    li_arr = dom.xpath(xpath_items)
+            # 获取所有的文章标签
+            li_arr = dom.xpath(xpath_items)
 
-    # 分别对每一个文章标签进行操作 将每篇文章的链接 标题 评论数 点赞数放到一个字典里
-    for idx, li_each in enumerate(li_arr):
-        t = {}
+            # 分别对每一个文章标签进行操作 将每篇文章的链接 标题 评论数 点赞数放到一个字典里
+            for idx, li_each in enumerate(li_arr):
+                t = {}
 
-        _str = li_each.xpath('./a//text()')[0]
+                _str = li_each.xpath('./a//text()')[0]
 
-        # 截取
-        str_arr = _str.split("\'")
-        if len(str_arr) == 0:
-            continue
+                # 截取
+                str_arr = _str.split("\'")
+                if len(str_arr) == 0:
+                    continue
 
-        _encode = str_arr[1]
-        # 解码
-        _title = base64.b64decode(_encode).decode()
-        _tip = li_each.xpath(xpath_tip)[0]
-        _href = li_each.xpath(xpath_href)[0]
-        t['id'] = str(idx + 1)
-        t['title'] = _tip + _title
-        full_href = base_url + _href
-        t['href'] = xlwt.Formula('HYPERLINK("{}"; "{}")'.format(full_href, full_href))
+                _encode = str_arr[1]
+                # 解码
+                _title = base64.b64decode(_encode).decode()
+                _tip = li_each.xpath(xpath_tip)[0]
+                _href = li_each.xpath(xpath_href)[0]
+                t['id'] = str(idx + 1)
+                t['title'] = _tip + _title
+                full_href = base_url + _href
+                t['href'] = xlwt.Formula('HYPERLINK("{}"; "{}")'.format(full_href, full_href))
 
-        if _title.find(search_str) >= 0:
-            print('Page: ' + str(page) + ', No: ' + str(idx + 1) + ', Title: ' + t["title"] + ', Href: ' + full_href,
-                  '\n')
+                if _title.find(search_str) >= 0:
+                    print('Page: ' + str(page) + ', No: ' + str(idx + 1) + ', Title: ' + t["title"] + ', Href: ' + full_href,
+                          '\n')
 
-            # 获取子页内容
-            item_html = requests.get(full_href)
-            item_html.encoding = item_html.apparent_encoding
-            down_dom = etree.HTML(item_html.text)
-            torrent_arr = down_dom.xpath(xpath_down)
+                    # 获取子页内容
+                    item_html = requests.get(full_href)
+                    item_html.encoding = item_html.apparent_encoding
+                    down_dom = etree.HTML(item_html.text)
+                    torrent_arr = down_dom.xpath(xpath_down)
 
-            if torrent_arr:
-                torrent = torrent_arr[0]
-                t['down'] = xlwt.Formula('HYPERLINK("{}"; "{}")'.format(base_url + torrent, base_url + torrent))
-                data.append(t)
-                time.sleep(3)
+                    if torrent_arr:
+                        torrent = torrent_arr[0]
+                        t['down'] = xlwt.Formula('HYPERLINK("{}"; "{}")'.format(base_url + torrent, base_url + torrent))
+                        data.append(t)
+                        time.sleep(random.randint(1, 3))
 
-    return data
+            return data
 
 
 # 获取每列所占用的最大列宽
@@ -135,12 +149,15 @@ def write_xls(data, file='acxyz'):
 def main():
     start_time = time.perf_counter()
     data = []
-    search_str = "SexArt" # 91汝工作室91ru 童颜混血tyhx 俄罗斯els 乌克兰wkl 洋妞yn 留学lx 欧洲euo
-    file_name = "sexart"
+    # 91汝工作室91ru 童颜混血tyhx 俄罗斯els 乌克兰wkl 洋妞yn 留学lx 欧洲euo
+    # 推特网红 极品网红  茶杯恶犬  初音  宅男福利  私人  女仆 超粉嫩美鲍
+    # 不见星空
+    search_str = "不见星空"
+    file_name = "不见星空"
     for i in range(1, 141):
         data = get_page_data(i, data, search_str)
         print('page' + str(i) + ' done!')
-        time.sleep(2)
+        time.sleep(random.randint(2, 4))
 
     # print('\n', data)
     # exit(66)
