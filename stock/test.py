@@ -26,16 +26,28 @@ def get_stock(code, up_rate):
     result = res.split('=')[1]
     # 股票名称
     name = result.split(',')[0].replace('"', '')
+    # 今日开盘价
+    open_price = float(result.split(',')[1])
     # 昨日收盘价
-    start_price = float(result.split(',')[2])
+    prev_price = float(result.split(',')[2])
     # 当前价格
     now_price = float(result.split(',')[3])
+    # 今日最高价
+    max_price = float(result.split(',')[4])
+    # 今日最低价
+    low_price = float(result.split(',')[5])
+    # 成交的股票数
+    deal_num = float(result.split(',')[8])
     # 涨跌幅度
-    rate = (now_price - start_price) / start_price * 100
+    rate = (now_price - prev_price) / prev_price * 100
+    #print(code,name,prev_price,open_price,now_price,max_price,low_price,deal_num,rate)
+    #exit(0)
 
     content = ''
     if abs(rate) > up_rate:
-        content = "股票预警：当前股票[{0}], 涨幅[{1:.2f}%], 请查收！【股票有风险，投资需谨慎】".format(name, rate)
+        content = "预警：当前股票[{0}], 涨幅[{1:.2f}%], 请查收！【股票有风险，投资需谨慎】".format(name, rate)
+        #content = '预警：当前股票编号：{}，名称：{}，昨收：{}，今开：{}，当前：{}，最高：{}，最低：{}，成交量：{}，涨幅：{1:.2f}%'.format(code,name,prev_price,open_price,now_price,max_price,low_price,deal_num,rate)
+
     return content
 
 # 循环获取每个stock 数据
@@ -74,9 +86,9 @@ def event_func():
 
 def main():
     # get_stock('sz', '000725')
-    up_rate = 1
-    #loop_stock(up_rate)
-    cron_run()
+    up_rate = 0.5
+    loop_stock(up_rate)
+    #cron_run()
 
 
 if __name__ == '__main__':
