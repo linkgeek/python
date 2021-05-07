@@ -10,13 +10,13 @@ import copy
 import random
 
 base_url = 'http://ac38.xyz/'
-url = 'http://ac38.xyz/list.php?class=guochan'
+url = 'http://www.btdk.xyz/list.php?class=guochan'
 # url = 'http://ac38.xyz/list.php?class=riben'
 
 headers = {
-    'Host': 'ac38.xyz',
-    'Cookie': '__cfduid=de73110f83595c0f98b2d5f7bbadc485a1616254803; _ga=GA1.1.2006431600.1616254805; _ga_Q3P79YL0DW=GS1.1.1616593392.5.1.1616600045.0',
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36',
+    'Host': 'www.btdk.xyz',
+    'Cookie': '__cfduid=d300ba300215e7290574d0bd7cdf617551620403510; _ga=GA1.1.1094315111.1620403509; _ga_Q3P79YL0DW=GS1.1.1620403509.1.1.1620405639.0',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36',
 
     #'Host': 'ap.lijit.com',
     #'Cookie': 'ljt_reader=c3baa883549c172a9fcf1b58;Version=1;Domain=.lijit.com;Path=/;Max-Age=31536000;Secure; SameSite=None;',
@@ -150,11 +150,11 @@ def main():
     start_time = time.perf_counter()
     data = []
     # 91汝工作室91ru 童颜混血tyhx 俄罗斯els 乌克兰wkl 洋妞yn 留学lx 欧洲euo
-    # 推特网红 极品网红  茶杯恶犬  初音  宅男福利  私人  女仆 超粉嫩美鲍
-    # 不见星空
-    search_str = "不见星空"
-    file_name = "不见星空"
-    for i in range(1, 141):
+    # 推特网红 极品网红  茶杯恶犬  初音  宅男福利  私人 私人定制 女仆 超粉嫩美鲍
+    # 不见星空 麻豆
+    search_str = "麻豆"
+    file_name = "麻豆"
+    for i in range(1, 201):
         data = get_page_data(i, data, search_str)
         print('page' + str(i) + ' done!')
         time.sleep(random.randint(2, 4))
