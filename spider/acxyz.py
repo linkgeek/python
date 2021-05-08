@@ -81,7 +81,7 @@ def get_page_data(page, data, search_str):
                     # if _title.find(search_str) >= 0:
                     print('Page: ' + str(page) + ', No: ' + str(idx + 1) + ', Title: ' + t[
                         "title"] + ', Href: ' + full_href,
-                          '\n')
+                          '\n')git 
 
                     # 获取子页内容
                     item_html = requests.get(full_href)
