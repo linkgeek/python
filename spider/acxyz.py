@@ -8,8 +8,9 @@ import time
 import base64
 import copy
 import random
+import re
 
-base_url = 'http://ac38.xyz/'
+base_url = 'http://www.btdk.xyz/'
 url = 'http://www.btdk.xyz/list.php?class=guochan'
 # url = 'http://ac38.xyz/list.php?class=riben'
 
@@ -18,9 +19,9 @@ headers = {
     'Cookie': '__cfduid=d300ba300215e7290574d0bd7cdf617551620403510; _ga=GA1.1.1094315111.1620403509; _ga_Q3P79YL0DW=GS1.1.1620403509.1.1.1620405639.0',
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36',
 
-    #'Host': 'ap.lijit.com',
-    #'Cookie': 'ljt_reader=c3baa883549c172a9fcf1b58;Version=1;Domain=.lijit.com;Path=/;Max-Age=31536000;Secure; SameSite=None;',
-    #'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36 Edg/90.0.818.46',
+    # 'Host': 'ap.lijit.com',
+    # 'Cookie': 'ljt_reader=c3baa883549c172a9fcf1b58;Version=1;Domain=.lijit.com;Path=/;Max-Age=31536000;Secure; SameSite=None;',
+    # 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36 Edg/90.0.818.46',
 }
 
 # 获取所有 li标签
@@ -36,7 +37,8 @@ xpath_title = './/text()'
 # 分页获取
 def get_page_data(page, data, search_str):
     page_url = url + '&page=' + str(page)
-    while True:
+    max_retry = 1
+    while max_retry <= 3:
         try:
             r = requests.get(page_url, headers=headers, timeout=15)
             r.raise_for_status()  # 如果响应状态码不是 200，就主动抛出异常
@@ -66,6 +68,8 @@ def get_page_data(page, data, search_str):
                 _encode = str_arr[1]
                 # 解码
                 _title = base64.b64decode(_encode).decode()
+                # print(_title)
+
                 _tip = li_each.xpath(xpath_tip)[0]
                 _href = li_each.xpath(xpath_href)[0]
                 t['id'] = str(idx + 1)
@@ -73,8 +77,10 @@ def get_page_data(page, data, search_str):
                 full_href = base_url + _href
                 t['href'] = xlwt.Formula('HYPERLINK("{}"; "{}")'.format(full_href, full_href))
 
-                if _title.find(search_str) >= 0:
-                    print('Page: ' + str(page) + ', No: ' + str(idx + 1) + ', Title: ' + t["title"] + ', Href: ' + full_href,
+                if bool(re.search("|".join(search_str), _title, re.I)):
+                    # if _title.find(search_str) >= 0:
+                    print('Page: ' + str(page) + ', No: ' + str(idx + 1) + ', Title: ' + t[
+                        "title"] + ', Href: ' + full_href,
                           '\n')
 
                     # 获取子页内容
@@ -82,14 +88,16 @@ def get_page_data(page, data, search_str):
                     item_html.encoding = item_html.apparent_encoding
                     down_dom = etree.HTML(item_html.text)
                     torrent_arr = down_dom.xpath(xpath_down)
-
+                    print(torrent_arr)
+                    exit()
                     if torrent_arr:
                         torrent = torrent_arr[0]
                         t['down'] = xlwt.Formula('HYPERLINK("{}"; "{}")'.format(base_url + torrent, base_url + torrent))
                         data.append(t)
                         time.sleep(random.randint(1, 3))
-
             return data
+
+        max_retry += 1
 
 
 # 获取每列所占用的最大列宽
@@ -149,13 +157,15 @@ def write_xls(data, file='acxyz'):
 def main():
     start_time = time.perf_counter()
     data = []
-    # 91汝工作室91ru 童颜混血tyhx 俄罗斯els 乌克兰wkl 洋妞yn 留学lx 欧洲euo
-    # 推特网红 极品网红  茶杯恶犬  初音  宅男福利  私人 私人定制 女仆 超粉嫩美鲍
-    # 不见星空 麻豆
-    search_str = "麻豆"
-    file_name = "麻豆"
+    # 91汝工作室 童颜混血 俄罗斯 乌克兰 洋妞 留学
+    # 推特网红 极品网红 宅男福利 私人 女仆 超粉嫩美鲍 麻豆
+    # 茶杯恶犬  初音  不见星空
+    search_str = "91汝工作室"
+    keywords = ("91汝工作室", "YMDD", "俄罗斯", '乌克兰', '洋妞', '推特网红', '极品网红', '宅男福利', '私人', '女仆', '超粉嫩美鲍', "麻豆")
+    keywords2 = ("茶杯恶犬", "初音", "不见星空", '', '', '', '', '', '', '', '', "")
+    file_name = "20210508"
     for i in range(1, 201):
-        data = get_page_data(i, data, search_str)
+        data = get_page_data(i, data, keywords)
         print('page' + str(i) + ' done!')
         time.sleep(random.randint(2, 4))
 

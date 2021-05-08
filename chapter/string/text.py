@@ -22,3 +22,13 @@ if _title.find(search_str) >= 0:
     print('ok')
 else:
     print('no')
+
+# 替换关键字
+def check_filter(keywords, text):
+    return re.sub("|".join(keywords), "***", text)
+
+
+keywords = ("暴力", "色情", "其他关键字", "YMDD", "Melody Marks")
+text = "Y5MDD-199 这句话里不包含暴1力，也不包含色1情，但是可能包含其他关键6字Melodymelody marks"
+#print(check_filter(keywords, text))
+print(re.search("|".join(keywords), text, re.M|re.I), bool(re.search("|".join(keywords), text, re.M|re.I)))
