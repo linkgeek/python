@@ -10,8 +10,8 @@ import copy
 import random
 import re
 
-base_url = 'http://www.btdk.xyz/'
-url = 'http://www.btdk.xyz/list.php?class=guochan'
+base_url = 'http://www.ac38.xyz/'
+url = base_url + 'list.php?class=guochan'
 # url = 'http://ac38.xyz/list.php?class=riben'
 
 headers = {
@@ -80,7 +80,7 @@ def get_page_data(page, data, search_str):
                         "title"] + ', Href: ' + full_href,
                           '\n')
                     t['down'] = full_href
-                    print(t)
+                    # print(t)
                     data.append(t)
                     time.sleep(random.randint(1, 3))
 
@@ -161,7 +161,7 @@ def main():
     data = []
 
     search_str = "91汝工作室"
-    keywords1 = ("91汝工作室", "YMDD", "俄罗斯", '乌克兰', '洋妞', '推特网红', '推特女神', '极品网红', '宅男福利',
+    keywords1 = ("91汝工作室", "俄罗斯", '乌克兰', '洋妞', '推特网红', '推特女神', '极品网红', '宅男福利',
                  '私人', '女仆', '超粉嫩美鲍', "麻豆", '推特女神', '骚+浪+贱', '骚 浪 贱')
     keywords = (
         '白袜袜格罗丫', '软萌萝莉小仙', "茶杯恶犬", '恶犬', '香草少女', '沐沐睡不着呀', '樱井奈奈', '怪污可优',
@@ -170,7 +170,7 @@ def main():
         '工口糯米姬', '范冰冰', '橘猫', '九尾狐狸', '奈音', '小清殿下', 'cutiea', "喵喵儿",
         '云宝宝', '希希酱', 'Litpussycatt', '夜夜主教', '赛高酱')
     file_name = "111"
-    for i in range(1, 10):
+    for i in range(1, 6):
         data = get_page_data(i, data, keywords)
         print('page' + str(i) + ' done!')
         time.sleep(random.randint(2, 4))
