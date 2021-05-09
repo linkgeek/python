@@ -26,7 +26,8 @@ headers = {
 
 # 获取所有 li标签
 xpath_items = '//div[@id="content"]/div/ul/li[position()>1][position()<last()]'
-xpath_down = '//div[@class="download"]/p[1]/a/@href'
+xpath_downbtn = '//div[@class="download"]/b//a/@href'
+xpath_down = '//div[@class="download"]/b//a/@href'
 
 # 对每个 li标签再提取
 xpath_tip = './text()'
@@ -56,8 +57,6 @@ def get_page_data(page, data, search_str):
 
             # 分别对每一个文章标签进行操作 将每篇文章的链接 标题 评论数 点赞数放到一个字典里
             for idx, li_each in enumerate(li_arr):
-                t = {}
-
                 _str = li_each.xpath('./a//text()')[0]
 
                 # 截取
@@ -70,31 +69,36 @@ def get_page_data(page, data, search_str):
                 _title = base64.b64decode(_encode).decode()
                 # print(_title)
 
-                _tip = li_each.xpath(xpath_tip)[0]
-                _href = li_each.xpath(xpath_href)[0]
-                t['id'] = str(idx + 1)
-                t['title'] = _tip + _title
-                full_href = base_url + _href
-                t['href'] = xlwt.Formula('HYPERLINK("{}"; "{}")'.format(full_href, full_href))
-
+                # if _title.find(search_str) >= 0:
                 if bool(re.search("|".join(search_str), _title, re.I)):
-                    # if _title.find(search_str) >= 0:
+                    _tip = li_each.xpath(xpath_tip)[0]
+                    _href = li_each.xpath(xpath_href)[0]
+                    t = {'id': str(idx + 1), 'title': _tip + _title}
+                    full_href = base_url + _href
+                    t['href'] = xlwt.Formula('HYPERLINK("{}"; "{}")'.format(full_href, full_href))
                     print('Page: ' + str(page) + ', No: ' + str(idx + 1) + ', Title: ' + t[
                         "title"] + ', Href: ' + full_href,
                           '\n')
+                    t['down'] = full_href
+                    print(t)
+                    data.append(t)
+                    time.sleep(random.randint(1, 3))
 
                     # 获取子页内容
-                    item_html = requests.get(full_href)
-                    item_html.encoding = item_html.apparent_encoding
-                    down_dom = etree.HTML(item_html.text)
-                    torrent_arr = down_dom.xpath(xpath_down)
-                    print(torrent_arr)
-                    exit()
-                    if torrent_arr:
-                        torrent = torrent_arr[0]
-                        t['down'] = xlwt.Formula('HYPERLINK("{}"; "{}")'.format(base_url + torrent, base_url + torrent))
-                        data.append(t)
-                        time.sleep(random.randint(1, 3))
+                    # item_html = requests.get(full_href)
+                    # item_html.encoding = item_html.apparent_encoding
+                    # down_dom = etree.HTML(item_html.text)
+                    # torrent_arr = down_dom.xpath(xpath_downbtn)
+                    # if torrent_arr[0]:
+                    #     down_page_url = base_url + torrent_arr[0]
+                    #     print(torrent_arr)
+                    #     exit()
+                    #     if torrent_arr:
+                    #         torrent = torrent_arr[0]
+                    #         t['down'] = xlwt.Formula('HYPERLINK("{}"; "{}")'.format(base_url + torrent, base_url + torrent))
+                    #         data.append(t)
+                    #         time.sleep(random.randint(1, 3))
+
             return data
 
         max_retry += 1
@@ -119,29 +123,27 @@ def write_xls(data, file='acxyz'):
     # 创建一个sheet对象
     worksheet = workbook.add_sheet('资源', cell_overwrite_ok=True)
 
-    worksheet.write(0, 0, "序号")
-    worksheet.write(0, 1, "标题")
-    worksheet.write(0, 2, "链接")
-    worksheet.write(0, 3, "下载")
+    worksheet.write(0, 0, "标题")
+    worksheet.write(0, 1, "链接")
+    worksheet.write(0, 2, "下载")
 
     # 列数
-    col_num = [0 for x in range(0, len(data) + 1)]
+    # col_num = [0 for x in range(0, len(data) + 1)]
     # 记录每行每列宽度
-    col_list = []
+    # col_list = []
 
     for i in range(len(data)):
-        worksheet.write(i + 1, 0, data[i]["id"])
-        worksheet.write(i + 1, 1, data[i]["title"])
-        worksheet.write(i + 1, 2, data[i]["href"])
-        worksheet.write(i + 1, 3, data[i]["down"])
+        worksheet.write(i + 1, 0, data[i]["title"])
+        worksheet.write(i + 1, 1, data[i]["href"])
+        worksheet.write(i + 1, 2, data[i]["down"])
 
-        col_num[0] = len(data[i]["id"].encode('gb18030'))  # 计算每列值的大小
-        col_num[1] = len(data[i]["title"].encode('gb18030'))  # 计算每列值的大小
-        col_list.append(copy.copy(col_num))  # 记录一行每列写入的长度
+        # col_num[0] = len(data[i]["id"].encode('gb18030'))  # 计算每列值的大小
+        # col_num[1] = len(data[i]["title"].encode('gb18030'))  # 计算每列值的大小
+        # col_list.append(copy.copy(col_num))  # 记录一行每列写入的长度
 
     # 获取每列最大宽度
     # col_max_num = get_max_col(col_list)
-    col_max_num = [2, 120, 60, 40, 0]
+    col_max_num = [100, 60, 40, 0]
     # print(col_max_num, '\n')
     # exit()
 
@@ -157,14 +159,18 @@ def write_xls(data, file='acxyz'):
 def main():
     start_time = time.perf_counter()
     data = []
-    # 91汝工作室 童颜混血 俄罗斯 乌克兰 洋妞 留学
-    # 推特网红 极品网红 宅男福利 私人 女仆 超粉嫩美鲍 麻豆
-    # 茶杯恶犬  初音  不见星空
+
     search_str = "91汝工作室"
-    keywords = ("91汝工作室", "YMDD", "俄罗斯", '乌克兰', '洋妞', '推特网红', '极品网红', '宅男福利', '私人', '女仆', '超粉嫩美鲍', "麻豆")
-    keywords2 = ("茶杯恶犬", "初音", "不见星空", '', '', '', '', '', '', '', '', "")
-    file_name = "20210508"
-    for i in range(1, 201):
+    keywords1 = ("91汝工作室", "YMDD", "俄罗斯", '乌克兰', '洋妞', '推特网红', '推特女神', '极品网红', '宅男福利',
+                 '私人', '女仆', '超粉嫩美鲍', "麻豆", '推特女神', '骚+浪+贱', '骚 浪 贱')
+    keywords = (
+        '白袜袜格罗丫', '软萌萝莉小仙', "茶杯恶犬", '恶犬', '香草少女', '沐沐睡不着呀', '樱井奈奈', '怪污可优',
+        '来自喵星的岁酱', '沐儿', '闵儿', "初音", "不见星空", '原歆公主', '涂鸦少女', 'SuperVi',
+        '完具', '玩具', '乳妈',
+        '工口糯米姬', '范冰冰', '橘猫', '九尾狐狸', '奈音', '小清殿下', 'cutiea', "喵喵儿",
+        '云宝宝', '希希酱', 'Litpussycatt', '夜夜主教', '赛高酱')
+    file_name = "111"
+    for i in range(1, 10):
         data = get_page_data(i, data, keywords)
         print('page' + str(i) + ' done!')
         time.sleep(random.randint(2, 4))
