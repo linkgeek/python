@@ -26,6 +26,10 @@ with open(f'config.json', 'r', encoding='utf8') as f:
     CONFIG = json.load(f)
 
 print(CONFIG)
+for obj in CONFIG['codeObj']:
+    print(obj, obj['code'], obj['up'])
+
+exit()
 
 
 def downloadJson(fundCode):
@@ -210,7 +214,7 @@ fig, axes = plt.subplots(2, 1)
 df2 = DataFrame(all_data_base)
 print(df2)
 
-prefix = 'medical_care' # result
+prefix = 'medical_care'  # result
 df2.stack().unstack(0).to_excel(f'{prefix}_{time.time()}.xlsx', sheet_name='out')
 df2.iloc[1:5, :].plot.barh(ax=axes[0], grid=True, fontsize=25)
 
