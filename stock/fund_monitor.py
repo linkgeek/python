@@ -1,3 +1,4 @@
+# 基金涨跌提醒 监控
 import smtplib
 import email
 # 负责构造文本
@@ -7,12 +8,12 @@ from email.mime.image import MIMEImage
 # 负责将多个对象集合起来
 from email.mime.multipart import MIMEMultipart
 from email.header import Header
-
+import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 import re
 import time
-
+import json
 import sys
 
 sys.path.append('..')
@@ -20,17 +21,22 @@ from api.workwx import WeChat
 
 fund_codes = []
 
+
 # 获取stock 列表
 def share_code():
-    with open('./fund_code.txt', 'r') as file:
-        print(file.readlines())
-        exit()
+    with open('./fund_code.txt', 'r', encoding='utf8') as file:
         for code in file.readlines():
             fund_codes.append(code.strip())
 
 
+# 加载config
+CONFIG = {}
+with open('../data/stock_fund/fund_config.json', 'r', encoding='utf8') as f:
+    CONFIG = json.load(f)
+
+
 # 获取基金涨跌
-def get_fund_info(fund_code):
+def get_fund_rate(fund_code):
     """
     获取基金涨跌幅信息：信息来源（新浪财经 http://stocks.sina.cn/fund/）
     fund_code：为基金代码，若该基金不存在，返回 False，否则返回 涨跌幅比例
@@ -40,7 +46,7 @@ def get_fund_info(fund_code):
         "Host": "stocks.sina.cn",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36"
     }
-    url = url = "http://stocks.sina.cn/fund/?code={}&vt=4#".format(fund_code)
+    url = "http://stocks.sina.cn/fund/?code={}&vt=4#".format(fund_code)
     try:
         r = requests.get(url, headers)
         r.encoding = "UTF-8"
@@ -57,37 +63,43 @@ def get_fund_info(fund_code):
 
 
 # 生成发送内容
-def gen_cont(fund_code, thresh):
-    body_content = "时间：{} \n\n".format(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
-    for code in fund_code:
-        rate = get_fund_info(code)
-        # print(code, rate)
-        # exit()
-        # 邮件正文内容
-        if rate:
-            #####  根据基金代码获取基金信息
+def gen_cont():
+    body_content = "最新基金预警，时间：{} \n\n".format(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+    for obj in CONFIG['top']:
+        code = obj['code']
+        real_rate = get_fund_rate(code)
+        if real_rate:
+            rate = obj['rate']
+            if rate[0] < real_rate and real_rate < rate[1]:
+                continue
+
+            # 根据基金代码获取基金信息
             headers = {
-                "Cookie":
-                    "qgqp_b_id=f8b59df051caea02b176f6d76db75887; EMFUND1=null; EMFUND2=null; EMFUND3=null; EMFUND4=null; EMFUND5=null; EMFUND6=null; EMFUND7=null; st_si=92310565820236; st_asi=delete; searchbar_code=160119; EMFUND0=null; EMFUND8=07-14%2021%3A54%3A31@%23%24%u5357%u65B9%u4E2D%u8BC1500ETF@%23%24510500; EMFUND9=07-25 23:07:36@#$%u5357%u65B9%u4E2D%u8BC1500ETF%u8054%u63A5A@%23%24160119; ASP.NET_SessionId=5ljqqn1s20zpfryhuw5fx4jw; st_pvi=06954122844047; st_sp=2020-05-20%2007%3A32%3A46; st_inirUrl=https%3A%2F%2Fwww.google.com%2F; st_sn=2; st_psi=20200725230736417-0-5210348614",
-                "User-Agent":
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36"
+                "Cookie": "qgqp_b_id=f8b59df051caea02b176f6d76db75887; EMFUND1=null; EMFUND2=null; EMFUND3=null; EMFUND4=null; EMFUND5=null; EMFUND6=null; EMFUND7=null; st_si=92310565820236; st_asi=delete; searchbar_code=160119; EMFUND0=null; EMFUND8=07-14%2021%3A54%3A31@%23%24%u5357%u65B9%u4E2D%u8BC1500ETF@%23%24510500; EMFUND9=07-25 23:07:36@#$%u5357%u65B9%u4E2D%u8BC1500ETF%u8054%u63A5A@%23%24160119; ASP.NET_SessionId=5ljqqn1s20zpfryhuw5fx4jw; st_pvi=06954122844047; st_sp=2020-05-20%2007%3A32%3A46; st_inirUrl=https%3A%2F%2Fwww.google.com%2F; st_sn=2; st_psi=20200725230736417-0-5210348614",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36"
             }
             url = "http://fund.eastmoney.com/js/fundcode_search.js"
             r = requests.get(url, headers)
-            info = re.findall("(\[.*?\])", r.text[9:-2])
-            fund_info = \
-                list(filter(lambda x: x.replace("\"", "").replace("[", "").replace("]", "").split(",")[0] == code,
-                            info))[0]
+            cont = re.findall('var r = (.*])', r.text)[0]  # 提取list
+            # ls = json.loads(cont)  # 将字符串个事的list转化为list格式
+            # all_fundCode = pd.DataFrame(ls, columns=['基金代码', '基金名称缩写', '基金名称', '基金类型', '基金名称拼音'])  # list转为DataFrame
+            # print(all_fundCode)
+            # exit()
 
-            if abs(rate) > thresh:
-                temp = """{} 基金 \n 涨幅为 {}%, \n \t \t ### 涨跌幅超过阈值！！！ ### \n\n""".format(fund_info, rate)
+            info = re.findall("(\[.*?\])", r.text[9:-2])
+            fund_info = list(filter(lambda x: x.replace("\"", "").replace("[", "").replace("]", "").split(",")[0] == code, info))[0]
+            ls = json.loads(fund_info)  # 将字符串转化为list格式
+            if real_rate < rate[0]:
+                temp = """{} code: {}, 昨收: {}, 涨幅: {}%, 跌幅超过阈值: {} \n""".format(ls[2], ls[0], 2, real_rate, rate[0])
+            elif real_rate > rate[1]:
+                temp = """{} code: {}, 昨收: {}, 涨幅: {}%, 涨幅超过阈值: {} \n""".format(ls[2], ls[0], 2, real_rate, rate[1])
             else:
-                temp = """{} 基金 \n 涨幅为 {}% \n\n""".format(fund_info, rate)
+                temp = ''
         else:
-            temp = """{} 基金 \n 获取失败！！！""".format(code)
+            temp = """{} 基金涨幅获取失败！！""".format(code)
         body_content += temp
 
-    body_content = "【股市有风险，投资需谨慎】"
+    body_content += "\n【投资有风险，下手需谨慎】"
     return body_content
 
 
@@ -151,12 +163,10 @@ def send_workwx_msg(content):
 
 
 def main():
-    share_code()
-    print(fund_codes)
-    exit()
-    content = gen_cont(fund_codes, 1)
+    # share_code()
+    content = gen_cont()
     print(content)
-    exit()
+    # exit()
     send_workwx_msg(content)
     # send_mail(fund_code=fund_code, receiver_mail="xxxxx@foxmail.com", thresh=1, user="LSJ")
 
