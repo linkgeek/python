@@ -1,4 +1,5 @@
 # coding: utf-8
+# 分析基金 基金对比 基金业绩
 import random
 import requests
 import time
@@ -14,8 +15,6 @@ import lxml.html
 PATH_DATA = '../../data'
 PATH_CACHE = PATH_DATA + '/fund_cache'
 
-# 设置字体为楷体
-# matplotlib.rcParams['font.sans-serif'] = ['KaiTi']
 # 显示中文标签
 plt.rcParams['font.sans-serif'] = ['SimHei']
 # 解决负号“-”显示为方块的问题
@@ -26,10 +25,6 @@ with open(f'config.json', 'r', encoding='utf8') as f:
     CONFIG = json.load(f)
 
 print(CONFIG)
-for obj in CONFIG['codeObj']:
-    print(obj, obj['code'], obj['up'])
-
-exit()
 
 
 def downloadJson(fundCode):

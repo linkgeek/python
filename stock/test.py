@@ -1,10 +1,13 @@
 import requests
 import threading
+import time
 import sys
+
 sys.path.append('..')
 from api.workwx import WeChat
 
 code_list = []
+
 
 # 获取stock 列表
 def share_code():
@@ -12,6 +15,7 @@ def share_code():
         for code in file.readlines():
             code_list.append(code.strip())
     # print(code_list)
+
 
 # 获取stock 数据
 def get_stock(code, up_rate):
@@ -40,15 +44,16 @@ def get_stock(code, up_rate):
     deal_num = float(result.split(',')[8])
     # 涨跌幅度
     rate = (now_price - prev_price) / prev_price * 100
-    #print(code,name,prev_price,open_price,now_price,max_price,low_price,deal_num,rate)
-    #exit(0)
+    # print(code,name,prev_price,open_price,now_price,max_price,low_price,deal_num,rate)
+    # exit(0)
 
     content = ''
     if abs(rate) > up_rate:
         content = "预警：当前股票[{0}], 涨幅[{1:.2f}%], 请查收！【股票有风险，投资需谨慎】".format(name, rate)
-        #content = '预警：当前股票编号：{}，名称：{}，昨收：{}，今开：{}，当前：{}，最高：{}，最低：{}，成交量：{}，涨幅：{1:.2f}%'.format(code,name,prev_price,open_price,now_price,max_price,low_price,deal_num,rate)
+        # content = '预警：当前股票编号：{}，名称：{}，昨收：{}，今开：{}，当前：{}，最高：{}，最低：{}，成交量：{}，涨幅：{1:.2f}%'.format(code,name,prev_price,open_price,now_price,max_price,low_price,deal_num,rate)
 
     return content
+
 
 # 循环获取每个stock 数据
 def loop_stock(up_rate):
@@ -58,8 +63,9 @@ def loop_stock(up_rate):
         if cont == '':
             continue
 
-        #print(cont)
+        # print(cont)
         send_workwx_msg(cont)
+
 
 # 钉钉机器人
 def send_dingding_msg(content):
@@ -67,28 +73,49 @@ def send_dingding_msg(content):
     # isAtAll: 是否要@某位用户
     json_data = {"msgtype": "text", "text": {"content": content}, "at": {"atMobiles": [], "isAtAll": False}}
     ding_url = 'https://oapi.dingtalk.com/robot/send?access_token=dfb241394310aeb3a94d32f1b359b7382429f4b435f9f0eb605979f50b21e857'
-    #requests.post(url=ding_url, json=json_data)
+    # requests.post(url=ding_url, json=json_data)
     print('预警信息发送成功!')
+
 
 # 企业微信
 def send_workwx_msg(content):
     wx = WeChat()
-    #wx.send_data("这是程序发送的第1条消息！\n Python程序调用企业微信API！")
+    # wx.send_data("这是程序发送的第1条消息！\n Python程序调用企业微信API！")
     wx.send_data(content)
+
 
 def cron_run():
     t = threading.Timer(0, event_func)
     t.setDaemon(True)
     t.start()
 
+
 def event_func():
     print('running')
+
+
+# 判断交易日
+def to_break():
+    ts = time.time()
+    t = time.localtime(ts)
+
+    tt = time.strftime("%H:%M:%S", t)
+    dayofweek = t.tm_wday
+    # 周六周日不交易
+    if dayofweek > 4:
+        return True
+    # 处于交易时间段
+    if "09:25:00" < tt < "15:00:00":
+        return False
+
+    return True
+
 
 def main():
     # get_stock('sz', '000725')
     up_rate = 0.5
     loop_stock(up_rate)
-    #cron_run()
+    # cron_run()
 
 
 if __name__ == '__main__':
