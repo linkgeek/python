@@ -64,7 +64,7 @@ def get_fund_rate(fund_code):
 
 # 生成发送内容
 def gen_cont():
-    body_content = "最新基金预警，时间：{} \n\n".format(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+    body_content = "Fund's latest warning，Time：{} \n\n".format(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
     for obj in CONFIG['top']:
         code = obj['code']
         real_rate = get_fund_rate(code)
