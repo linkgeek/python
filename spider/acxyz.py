@@ -12,7 +12,6 @@ import re
 
 base_url = 'http://www.btmj.xyz/'
 url = base_url + 'list.php?class=guochan'
-# url = 'http://ac38.xyz/list.php?class=riben'
 
 headers = {
     'Host': 'www.btdk.xyz',
@@ -36,7 +35,7 @@ xpath_title = './/text()'
 
 
 # 分页获取
-def get_page_data(page, data, search_str):
+def get_page_data(page, data, keywords, start_date):
     page_url = url + '&page=' + str(page)
     while True:
         try:
@@ -51,10 +50,8 @@ def get_page_data(page, data, search_str):
             dom = etree.HTML(r.text)
             r.close()
 
-            # 获取所有的文章标签
+            # 获取每页所有的li标签
             li_arr = dom.xpath(xpath_items)
-
-            # 分别对每一个文章标签进行操作 将每篇文章的链接 标题 评论数 点赞数放到一个字典里
             for idx, li_each in enumerate(li_arr):
                 _str = li_each.xpath('./a//text()')[0]
 
@@ -66,10 +63,13 @@ def get_page_data(page, data, search_str):
                 _encode = str_arr[1]
                 # 解码
                 _title = base64.b64decode(_encode).decode()
-                # print(_title)
+                date_str = re.findall(r'[[](.*?)[]]', _title)[0]
+                # print(_title, date_str)
+                if date_str < start_date:
+                    return data
 
-                # if _title.find(search_str) >= 0:
-                if bool(re.search("|".join(search_str), _title, re.I)):
+                # 判断是否包含keywords
+                if bool(re.search("|".join(keywords), _title, re.I)):
                     _tip = li_each.xpath(xpath_tip)[0]
                     _href = li_each.xpath(xpath_href)[0]
                     t = {'title': _tip + _title}
@@ -114,7 +114,7 @@ def get_max_col(max_list):
 
 
 # 写入xls
-def write_xls(data, file='acxyz'):
+def write_xls(data, file='test'):
     # 创建一个Workbook对象
     workbook = xlwt.Workbook(encoding='utf-8', style_compression=0)
     # 创建一个sheet对象
@@ -160,7 +160,6 @@ def write_xls(data, file='acxyz'):
 def main():
     start_time = time.perf_counter()
     data = []
-
     keywords1 = ("91汝工作室", '乌克兰', '推特网红', '推特女神', '推特极品', '极品网红', '宅男福利',
                  '私人玩物', '女仆', '超粉嫩美鲍', '骚+浪+贱', '骚 浪 贱', '91SWEATTT', 'HEGRE', '超正点')
     keywords = (
@@ -170,15 +169,14 @@ def main():
         '完具', '娜美妖姬', '依灵儿', '比卡丘', '亲亲我吖', '我刚成年', '软糖呀', '桃桃酱',
         '橘猫', '奈音', '小清殿下', "喵喵儿", '樱井奈奈', '怪污可优', '悠宝', '械师',
         '夜夜主教', '赛高酱', '貂蝉', '王星雅', '王瑞儿', '姚安琪', 'LEXISCANDYSHOP', '浪味仙儿',
-        '三寸', '发条', '习呆呆', '闵儿', )
+        '三寸', '发条', '习呆呆', '闵儿')
+
     file_name = "keywords2_0519"
+    start_date = '05-20'
     for i in range(1, 200):
-        data = get_page_data(i, data, keywords)
+        data = get_page_data(i, data, keywords, start_date)
         print('page' + str(i) + ' done!')
         time.sleep(random.randint(2, 4))
-
-    # print('\n', data)
-    # exit(66)
 
     if len(data):
         print('done! 共 {} 条'.format(len(data)))
