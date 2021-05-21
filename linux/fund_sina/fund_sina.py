@@ -85,6 +85,9 @@ def gen_cont():
                 temp = ''
         else:
             temp = """CODE：{}，<font color=\"comment\">failed to gain fund growth！！</font>\n""".format(code)
+
+        if temp == '':
+            temp = 'DATA IS EMPTY.'
         body_content += temp
 
     body_content += "\n[The stock market is risky, investment needs to be cautious]"

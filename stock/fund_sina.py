@@ -80,7 +80,7 @@ def gen_cont():
             }
             url = "http://fund.eastmoney.com/js/fundcode_search.js"
             r = requests.get(url, headers)
-            cont = re.findall('var r = (.*])', r.text)[0]  # 提取list
+            # cont = re.findall('var r = (.*])', r.text)[0]  # 提取list
             # ls = json.loads(cont)  # 将字符串个事的list转化为list格式
             # all_fundCode = pd.DataFrame(ls, columns=['基金代码', '基金名称缩写', '基金名称', '基金类型', '基金名称拼音'])  # list转为DataFrame
             # print(all_fundCode)
@@ -97,6 +97,8 @@ def gen_cont():
                 temp = ''
         else:
             temp = """{} 基金涨幅获取失败！！""".format(code)
+        if temp == '':
+            temp = """DATA IS EMPTY."""
         body_content += temp
 
     body_content += "\n【投资有风险，下手需谨慎】"

@@ -12,8 +12,8 @@ import matplotlib.pyplot as plt
 import os
 import lxml.html
 
-PATH_DATA = '../../data'
-PATH_CACHE = PATH_DATA + '/fund_cache'
+DATA_PATH = '../../data/'
+PATH_CACHE = DATA_PATH + 'fund_cache'
 
 # 显示中文标签
 plt.rcParams['font.sans-serif'] = ['SimHei']
@@ -21,10 +21,11 @@ plt.rcParams['font.sans-serif'] = ['SimHei']
 plt.rcParams['axes.unicode_minus'] = False
 
 CONFIG = {}
-with open(f'config.json', 'r', encoding='utf8') as f:
+with open(DATA_PATH + 'stock_fund/fund_config.json', 'r', encoding='utf8') as f:
     CONFIG = json.load(f)
 
-print(CONFIG)
+
+# print(CONFIG)
 
 
 def downloadJson(fundCode):
@@ -119,7 +120,8 @@ def getFloat(syl_1n):
 timeformat = lambda x: time.strftime("%Y-%m-%d", time.localtime(x / 1e3))
 all_data_base = {}
 all_data = {}
-for fundCode in CONFIG['medicalCare']:
+config_key = 'medical_care'
+for fundCode in CONFIG[config_key]:
     print(f'downloading... {fundCode}')
     downed = downloadJson(fundCode)
     downed = downloadHtml(fundCode) or downed
@@ -209,8 +211,7 @@ fig, axes = plt.subplots(2, 1)
 df2 = DataFrame(all_data_base)
 print(df2)
 
-prefix = 'medical_care'  # result
-df2.stack().unstack(0).to_excel(f'{prefix}_{time.time()}.xlsx', sheet_name='out')
+df2.stack().unstack(0).to_excel(f'{DATA_PATH}/stock_fund/{config_key}_{time.time()}.xlsx', sheet_name='out')
 df2.iloc[1:5, :].plot.barh(ax=axes[0], grid=True, fontsize=25)
 
 # 处理收益
@@ -219,6 +220,6 @@ print(df)
 df.plot(ax=axes[1], grid=True, fontsize=25)
 
 fig.set_size_inches(20, 20)
-fig.savefig(f'{prefix}_{time.time()}.png')
+fig.savefig(f'{DATA_PATH}/stock_fund/{config_key}_{time.time()}.png')
 
 # https://www.zhihu.com/question/25404709 matplotlib图例中文乱码
