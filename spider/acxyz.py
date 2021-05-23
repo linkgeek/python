@@ -6,7 +6,6 @@ from lxml import etree
 import xlwt
 import time
 import base64
-import copy
 import random
 import re
 
@@ -53,26 +52,30 @@ def get_page_data(page, data, keywords, start_date):
             # 获取每页所有的li标签
             li_arr = dom.xpath(xpath_items)
             for idx, li_each in enumerate(li_arr):
-                _str = li_each.xpath('./a//text()')[0]
+                # 时间
+                date_item = li_each.xpath(xpath_tip)[0]
+                date_str = re.findall(r'[\[](.*?)[\]]', date_item)
+                if date_str[0] < start_date:
+                    print('Page: ' + str(page) + ', No: ' + str(idx + 1) + ', 开始时间小于：' + start_date, '\n')
+                    return data
 
                 # 截取
+                _str = li_each.xpath('./a//text()')[0]
                 str_arr = _str.split("\'")
+                # print(22, str_arr)
                 if len(str_arr) == 0:
                     continue
 
-                _encode = str_arr[1]
                 # 解码
+                _encode = str_arr[1]
                 _title = base64.b64decode(_encode).decode()
-                date_str = re.findall(r'[[](.*?)[]]', _title)[0]
-                # print(_title, date_str)
-                if date_str < start_date:
-                    return data
+                # print(_title)
+                # exit()
 
                 # 判断是否包含keywords
                 if bool(re.search("|".join(keywords), _title, re.I)):
-                    _tip = li_each.xpath(xpath_tip)[0]
                     _href = li_each.xpath(xpath_href)[0]
-                    t = {'title': _tip + _title}
+                    t = {'title': date_item[0] + _title}
                     full_href = base_url + _href
                     t['href'] = xlwt.Formula('HYPERLINK("{}"; "{}")'.format(full_href, full_href))
                     # t['down'] = full_href
@@ -145,8 +148,6 @@ def write_xls(data, file='test'):
     # 获取每列最大宽度
     # col_max_num = get_max_col(col_list)
     col_max_num = [80, 60, 0]
-    # print(col_max_num, '\n')
-    # exit()
 
     # 设置自适应列宽
     for i in range(0, len(col_max_num)):
@@ -162,18 +163,19 @@ def main():
     data = []
     keywords1 = ("91汝工作室", '乌克兰', '推特网红', '推特女神', '推特极品', '极品网红', '宅男福利',
                  '私人玩物', '女仆', '超粉嫩美鲍', '骚+浪+贱', '骚 浪 贱', '91SWEATTT', 'HEGRE', '超正点')
-    keywords = (
-        '有喵酱', '小鸟酱', '苏苏', '工口糯米姬', '押尾猫', "初音", "不见星空", '白袜袜格罗', '完具酱',
-        '软萌萝莉小仙', '希希酱', '橘子酱', '绯红小猫', '恶犬', '香草少女', '九尾狐狸', '沐沐睡不着呀',
-        '来自喵星的岁酱', '沐儿', '露西宝宝', '原歆公主', '涂鸦少女', '小秋秋',
-        '完具', '娜美妖姬', '依灵儿', '比卡丘', '亲亲我吖', '我刚成年', '软糖呀', '桃桃酱',
-        '橘猫', '奈音', '小清殿下', "喵喵儿", '樱井奈奈', '怪污可优', '悠宝', '械师',
-        '夜夜主教', '赛高酱', '貂蝉', '王星雅', '王瑞儿', '姚安琪', 'LEXISCANDYSHOP', '浪味仙儿',
-        '三寸', '发条', '习呆呆', '闵儿')
+    keywords2 = ('希希酱', '绯红小猫', '橘子酱', '恶犬', '香草少女', '九尾狐狸', '沐沐睡不着呀',
+                 '来自喵星的岁酱', '露西宝宝', '原歆公主', '涂鸦少女', '小秋秋', '玩酱呀', '三寸',
+                 '完具', '娜美妖姬', '比卡丘', '亲亲我吖', '我刚成年', '软糖呀', '桃桃酱',
+                 '橘猫', '奈音', '小清殿下', "喵喵儿", '樱井奈奈', '怪污可优', '悠宝', '械师',
+                 '夜夜主教', '赛高酱', '貂蝉', '王星雅', '浪味仙儿',
+                 '发条', '习呆呆', '闵儿', '可爱的小猫', 'KANAMI', '姚安琪', 'LEXISCANDYSHOP',)
 
-    file_name = "keywords2_0519"
+    keywords = ("不见星空", '白袜袜格罗', '工口糯米姬', '押尾猫', "初音", '完具酱', '有喵酱',
+                '91蜜桃', '小鸟酱', '苏苏')
+
+    file_name = "keywords2_0520_0523"
     start_date = '05-20'
-    for i in range(1, 200):
+    for i in range(1, 201):
         data = get_page_data(i, data, keywords, start_date)
         print('page' + str(i) + ' done!')
         time.sleep(random.randint(2, 4))
