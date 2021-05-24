@@ -58,7 +58,7 @@ def gen_cont():
     for obj in CONFIG['top']:
         code = obj['code']
         real_rate = get_fund_rate(code)
-        if real_rate:
+        if real_rate is not False:
             rate = obj['rate']
             if rate[0] < real_rate < rate[1]:
                 continue
