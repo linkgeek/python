@@ -60,7 +60,7 @@ def gen_cont():
         real_rate = get_fund_rate(code)
         if real_rate:
             rate = obj['rate']
-            if rate[0] < real_rate and real_rate < rate[1]:
+            if rate[0] < real_rate < rate[1]:
                 continue
 
             # 根据基金代码获取基金信息
