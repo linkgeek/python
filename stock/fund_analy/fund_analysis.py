@@ -120,7 +120,7 @@ def getFloat(syl_1n):
 timeformat = lambda x: time.strftime("%Y-%m-%d", time.localtime(x / 1e3))
 all_data_base = {}
 all_data = {}
-config_key = 'medical_care'
+config_key = 'liquor_drink'  # liquor_drink
 for fundCode in CONFIG[config_key]:
     print(f'downloading... {fundCode}')
     downed = downloadJson(fundCode)
