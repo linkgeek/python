@@ -12,6 +12,11 @@ import matplotlib.pyplot as plt
 import os
 import lxml.html
 
+# 绝对路径
+work_dir = os.path.dirname(os.path.abspath(__file__))
+# 把当前路径切换到文件所在的路径
+os.chdir(work_dir)
+
 DATA_PATH = '../../data/'
 PATH_CACHE = DATA_PATH + 'fund_cache'
 
@@ -26,6 +31,7 @@ with open(DATA_PATH + 'stock_fund/fund_config.json', 'r', encoding='utf8') as f:
 
 
 # print(CONFIG)
+# exit()
 
 
 def downloadJson(fundCode):
@@ -121,7 +127,8 @@ timeformat = lambda x: time.strftime("%Y-%m-%d", time.localtime(x / 1e3))
 all_data_base = {}
 all_data = {}
 config_key = 'liquor_drink'  # liquor_drink
-for fundCode in CONFIG[config_key]:
+for item in CONFIG[config_key]:
+    fundCode = item['code']
     print(f'downloading... {fundCode}')
     downed = downloadJson(fundCode)
     downed = downloadHtml(fundCode) or downed
