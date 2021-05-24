@@ -86,7 +86,7 @@ def gen_cont():
         else:
             temp = """CODE：{}，<font color=\"comment\">failed to gain fund growth！！</font>\n""".format(code)
 
-        if temp == '':
+        if len(temp) == 0:
             temp = 'DATA IS EMPTY.'
         body_content += temp
 
