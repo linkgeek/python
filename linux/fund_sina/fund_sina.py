@@ -1,12 +1,14 @@
 #!/usr/local/bin/python3
 # 基金涨跌提醒 监控
-import requests
-from bs4 import BeautifulSoup
+
 import re
 import time
 import json
 import sys
 import os
+import operator
+import requests
+from bs4 import BeautifulSoup
 
 # 绝对路径
 work_dir = os.path.dirname(os.path.abspath(__file__))
@@ -23,7 +25,7 @@ with open('../data/fund_config.json', 'r', encoding='utf8') as f:
     CONFIG = json.load(f)
 
 
-# 获取基金涨跌
+# 获取基金行情
 def get_fund_rate(fund_code):
     """
     获取基金涨跌幅信息：信息来源（新浪财经 http://stocks.sina.cn/fund/）
@@ -52,42 +54,36 @@ def get_fund_rate(fund_code):
 
 # 生成发送内容
 def gen_cont():
+    rate_list = []
+    for obj in CONFIG['top']:
+        real_rate = get_fund_rate(obj['code'])
+        if real_rate is not False:
+            point_rate = obj['rate']
+            if point_rate[0] < real_rate < point_rate[1]:
+                continue
+        else:
+            real_rate = 0
+        code_dict = {
+            'code': obj['code'],
+            'up': real_rate,
+            'rate': obj['rate'],
+            'name': obj['name']
+        }
+        rate_list.append(code_dict)
+
+    # 排序
+    sort_list = sorted(rate_list, key=operator.itemgetter('up'), reverse=True)
     body_content = "<font color=\"comment\">Fund's latest warning {}</font>\n".format(
         time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
-
-    for obj in CONFIG['top']:
-        code = obj['code']
-        real_rate = get_fund_rate(code)
-        if real_rate is not False:
-            rate = obj['rate']
-            if rate[0] < real_rate < rate[1]:
-                continue
-
-            # 根据基金代码获取基金信息
-            headers = {
-                "Cookie": "qgqp_b_id=f8b59df051caea02b176f6d76db75887; EMFUND1=null; EMFUND2=null; EMFUND3=null; EMFUND4=null; EMFUND5=null; EMFUND6=null; EMFUND7=null; st_si=92310565820236; st_asi=delete; searchbar_code=160119; EMFUND0=null; EMFUND8=07-14%2021%3A54%3A31@%23%24%u5357%u65B9%u4E2D%u8BC1500ETF@%23%24510500; EMFUND9=07-25 23:07:36@#$%u5357%u65B9%u4E2D%u8BC1500ETF%u8054%u63A5A@%23%24160119; ASP.NET_SessionId=5ljqqn1s20zpfryhuw5fx4jw; st_pvi=06954122844047; st_sp=2020-05-20%2007%3A32%3A46; st_inirUrl=https%3A%2F%2Fwww.google.com%2F; st_sn=2; st_psi=20200725230736417-0-5210348614",
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36"
-            }
-            url = "http://fund.eastmoney.com/js/fundcode_search.js"
-            r = requests.get(url, headers)
-            info = re.findall("(\[.*?\])", r.text[9:-2])
-            fund_info = \
-                list(filter(lambda x: x.replace("\"", "").replace("[", "").replace("]", "").split(",")[0] == code,
-                            info))[0]
-            ls = json.loads(fund_info)  # 将字符串转化为list格式
-            if real_rate < rate[0]:
-                temp = """CODE：{}，<font color=\"info\">↓</font>：<font color=\"info\">{}%</font>，POINT：{}%，ZH：{}\n""".format(
-                    ls[0], real_rate, rate[0], ls[2])
-            elif real_rate > rate[1]:
-                temp = """CODE：{}，<font color=\"warning\">↑</font>：<font color=\"warning\">{}%</font>，POINT：<font color=\"warning\">{}%</font>，ZH：{}\n""".format(
-                    ls[0], real_rate, rate[1], ls[2])
-            else:
-                temp = ''
+    for item in sort_list:
+        if item['up'] > 0:
+            temp = """Co：{}，<font color=\"warning\">↑</font>：<font color=\"warning\">{}%</font>，Po：{}%，ZH：{}\n""".format(
+                item['code'], format(item['up'], '.2f'), item['rate'][1], item['name'])
+        elif item['up'] < 0:
+            temp = """Co：{}，<font color=\"info\">↓</font>：<font color=\"info\">{}%</font>，Po：{}%，ZH：{}\n""".format(
+                item['code'], format(item['up'], '.2f'), item['rate'][0], item['name'])
         else:
-            temp = """CODE：{}，<font color=\"comment\">failed to gain fund growth！！</font>\n""".format(code)
-
-        if len(temp) == 0:
-            temp = 'DATA IS EMPTY.'
+            temp = """Co：{}，<font color=\"comment\">failed to gain fund growth！！</font>\n""".format(item['code'])
         body_content += temp
 
     body_content += "\n[The stock market is risky, investment needs to be cautious]"
@@ -95,14 +91,14 @@ def gen_cont():
 
 
 # 发送企业微信
-def send_workwx_msg(content):
+def send_work_wx(content):
     wx = WeChat()
     wx.send_markdown(content)
 
 
 def main():
     content = gen_cont()
-    send_workwx_msg(content)
+    send_work_wx(content)
 
 
 if __name__ == '__main__':

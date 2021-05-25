@@ -27,10 +27,10 @@ class WeChat:
     # 获取缓存access_token
     def get_access_token(self):
         try:
-            with open('../data/workwx_access_token.conf', 'r') as f:
+            with open('../data/config/workwx_access_token.conf', 'r') as f:
                 t, access_token = f.read().split()
         except:
-            with open('../data/workwx_access_token.conf', 'w') as f:
+            with open('../data/config/workwx_access_token.conf', 'w') as f:
                 access_token = self._get_access_token()
                 cur_time = time.time()
                 f.write('\t'.join([str(cur_time), access_token]))
@@ -40,7 +40,7 @@ class WeChat:
             if 0 < cur_time - float(t) < 7260:
                 return access_token
             else:
-                with open('../data/workwx_access_token.conf', 'w') as f:
+                with open('../data/config/workwx_access_token.conf', 'w') as f:
                     access_token = self._get_access_token()
                     f.write('\t'.join([str(cur_time), access_token]))
                     return access_token

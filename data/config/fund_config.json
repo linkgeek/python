@@ -1,5 +1,5 @@
 {
-  "useCache": false,
+  "useCache": true,
   "top": [
     {"code": "161725", "rate": [-2, 2], "name": "招商中证白酒指数(LOF)", "remark": ""},
     {"code": "260108", "rate": [-2, 2], "name": "景顺长城新兴成长混合", "remark": ""},

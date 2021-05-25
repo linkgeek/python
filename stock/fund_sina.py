@@ -31,7 +31,7 @@ def share_code():
 
 # 加载config
 CONFIG = {}
-with open('../data/stock_fund/fund_config.json', 'r', encoding='utf8') as f:
+with open('../data/config/fund_config.json', 'r', encoding='utf8') as f:
     CONFIG = json.load(f)
 
 
@@ -161,7 +161,7 @@ def send_mail(fund_code, receiver_mail, thresh=1, user=None):
 def send_workwx_msg(content):
     wx = WeChat()
     # wx.send_data("这是程序发送的第1条消息！\n Python程序调用企业微信API！")
-    wx.send_data(content)
+    wx.send_text(content)
 
 
 def main():
