@@ -42,10 +42,12 @@ def get_fund_rate(fund_code):
         r.encoding = "UTF-8"
         soup = BeautifulSoup(r.text, "html.parser")
         result = soup.findAll(attrs={"class": "j_fund_valExt"})
+        prev_growth = soup.findAll(attrs={"class": "stock_info_value"})
         if len(result) == 1:
             pattern = "(?<=>)(.+)(?=<)"
             result = re.findall(pattern, str(result[0]))[0]
-            return float(result.split("%")[0])
+            prev_growth = re.findall(pattern, str(prev_growth[0]))[0]
+            return {'now': float(result.split("%")[0]), 'prev': float(prev_growth.split("%")[0])}
         else:
             return False
     except:
@@ -56,37 +58,53 @@ def get_fund_rate(fund_code):
 def gen_cont():
     rate_list = []
     for obj in CONFIG['top']:
-        real_rate = get_fund_rate(obj['code'])
-        if real_rate is not False:
+        info = get_fund_rate(obj['code'])
+        curr_rate = info['now']
+        if curr_rate is not False:
             point_rate = obj['rate']
-            if point_rate[0] < real_rate < point_rate[1]:
+            if point_rate[0] < curr_rate < point_rate[1]:
                 continue
         else:
-            real_rate = 0
+            curr_rate = 0
         code_dict = {
             'code': obj['code'],
-            'up': real_rate,
+            'up': curr_rate,
             'rate': obj['rate'],
-            'name': obj['name']
+            'name': obj['name'],
+            'prev': info['prev']
         }
         rate_list.append(code_dict)
 
     # 排序
     sort_list = sorted(rate_list, key=operator.itemgetter('up'), reverse=True)
+    warn_text = ''
+    for item in sort_list:
+        temp = "Co：{}，".format(item['code'])
+        if item['up'] > 0:
+            if item['prev'] >= 0:
+                temp += "Pv：<font color=\"warning\">{}%</font>，".format(item['prev'])
+            else:
+                temp += "Pv：<font color=\"info\">{}%</font>，".format(item['prev'])
+            temp += "<font color=\"warning\">↑</font>：<font color=\"warning\">{}%</font>，Po：{}%，Zh：{}\n""".format(
+                format(item['up'], '.2f'), format(item['rate'][1], '.1f'), item['name'])
+        elif item['up'] < 0:
+            if item['prev'] >= 0:
+                temp += "Pv：<font color=\"warning\">{}%</font>，".format(item['prev'])
+            else:
+                temp += "Pv：<font color=\"info\">{}%</font>，".format(item['prev'])
+            temp += "<font color=\"info\">↑</font>：<font color=\"info\">{}%</font>，Po：{}%，Zh：{}\n""".format(
+                format(item['up'], '.2f'), format(item['rate'][0], '.1f'), item['name'])
+        else:
+            temp = """<font color=\"comment\">failed to gain fund growth！！</font>\n""".format(item['code'])
+        warn_text += temp
+
+    if len(warn_text) == 0:
+        warn_text = "\nMessage is empty!\n"
+
     body_content = "<font color=\"comment\">Fund's latest warning {}</font>\n".format(
         time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
-    for item in sort_list:
-        if item['up'] > 0:
-            temp = """Co：{}，<font color=\"warning\">↑</font>：<font color=\"warning\">{}%</font>，Po：{}%，ZH：{}\n""".format(
-                item['code'], format(item['up'], '.2f'), item['rate'][1], item['name'])
-        elif item['up'] < 0:
-            temp = """Co：{}，<font color=\"info\">↓</font>：<font color=\"info\">{}%</font>，Po：{}%，ZH：{}\n""".format(
-                item['code'], format(item['up'], '.2f'), item['rate'][0], item['name'])
-        else:
-            temp = """Co：{}，<font color=\"comment\">failed to gain fund growth！！</font>\n""".format(item['code'])
-        body_content += temp
-
-    body_content += "\n[The stock market is risky, investment needs to be cautious]"
+    body_content += warn_text
+    body_content += "\n<font color=\"comment\">[The stock market is risky, investment needs to be cautious]</font>"
     return body_content
 
 

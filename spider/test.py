@@ -1,49 +1,20 @@
 import requests
-from lxml import etree
+import urllib3
 
-text = '''
-<div>
-    <ul class="list">
-        <li>
-            <a href="https://s1.bdstatic.com/"><b>item 1</b></a>
-        </li>
-        <li>
-            "[03-25] "
-            <a href="https://s2.bdstatic.com/">
-                <script></script>
-                "title 2"
-                <font>1024</font>
-            </a>
-        </li>
-        <li>
-            "[03-24] "
-            <a href="https://s3.bdstatic.com/">
-                <script></script>
-                "title 3"
-                <font>1024</font>
-            </a>
-        </li>
-    </ul>     
-</div>
-'''
+url = 'https://xueqiu.com/'
+headers = {
+    'Host': 'xueqiu.com',
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36',
+}
 
-# 利用 etree.HTML 把字符串解析成 HTML 文件
-html = etree.HTML(text)
-# decode() 方法将其转化为 str 类型
-s = etree.tostring(html).decode()
-print(s)
-exit(234)
+proxies = {}
 
-# 此时responses是一个list[]
-response = html.xpath('//textarea [@id="hotsearch_data"]/text()')
-print(response)
-exit(234)
-
-# 此时遍历response得到item(item为字典类型)
-for item in response:
-    # 通过key获取item的value----item2
-    item2 = eval(item).get("hotsearch")  # 此处需要用eval智能识别item的类型
-    # item2也是一个list,再次遍历得到item3
-    for item3 in item2:
-        # item3也是字典类型，通过key('pure_title')得到value
-        print(item3.get('pure_title'))
+# 移除因移除SSL认证出现的警告
+urllib3.disable_warnings()
+resp = requests.get(url, headers=headers, verify=True, proxies=proxies)
+if resp.status_code == 200:
+    html_bytes = resp.content
+    html_str = html_bytes.decode()
+    print(html_str)
+else:
+    print(f'errno-{resp.status_code}')
