@@ -3,7 +3,7 @@ import re
 
 
 def fuckLoveWords():
-    with open("qinghua.txt", "w", encoding="utf-8") as f:
+    with open("../data/config/qinghua.txt", "w", encoding="utf-8") as f:
         for i in range(1000, 1200):
             print("第" + str(i) + "页")
             try:

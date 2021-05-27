@@ -3,7 +3,7 @@ import subprocess
 
 
 def getText():
-    filepath = "D:/Code/python/spider/qinghua.txt"
+    filepath = "/data/config/qinghua.txt"
     with open(filepath, 'r+', encoding='utf-8') as f:  # 打开文件
         content = f.read()  # 读取
         content = content.split("!@#$%")
