@@ -80,14 +80,14 @@ def gen_cont():
     warn_text = ''
     for item in sort_list:
         temp = "Co：{}，".format(item['code'])
-        if item['up'] > 0:
+        if item['up'] > 0:  # 涨
             if item['prev'] >= 0:
                 temp += "Pv：<font color=\"warning\">{}%</font>，".format(item['prev'])
             else:
                 temp += "Pv：<font color=\"info\">{}%</font>，".format(item['prev'])
             temp += "<font color=\"warning\">↑</font>：<font color=\"warning\">{}%</font>，Po：{}%，Zh：{}\n""".format(
                 format(item['up'], '.2f'), format(item['rate'][1], '.1f'), item['name'])
-        elif item['up'] < 0:
+        elif item['up'] < 0:  # 跌
             if item['prev'] >= 0:
                 temp += "Pv：<font color=\"warning\">{}%</font>，".format(item['prev'])
             else:
