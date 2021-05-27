@@ -2,25 +2,15 @@
 # -*- coding: UTF-8 -*-
 
 import requests
+import urllib.request
+from urllib import request, parse
+import urllib3
 from lxml import etree
 import xlwt
 import time
 import base64
 import random
 import re
-
-base_url = 'http://www.btmj.xyz/'
-url = base_url + 'list.php?class=guochan'
-
-headers = {
-    'Host': 'www.btdk.xyz',
-    'Cookie': '__cfduid=d300ba300215e7290574d0bd7cdf617551620403510; _ga=GA1.1.1094315111.1620403509; _ga_Q3P79YL0DW=GS1.1.1620403509.1.1.1620405639.0',
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36',
-
-    # 'Host': 'ap.lijit.com',
-    # 'Cookie': 'ljt_reader=c3baa883549c172a9fcf1b58;Version=1;Domain=.lijit.com;Path=/;Max-Age=31536000;Secure; SameSite=None;',
-    # 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36 Edg/90.0.818.46',
-}
 
 # 获取所有 li标签
 xpath_items = '//div[@id="content"]/div/ul/li[position()>1][position()<last()]'
@@ -32,13 +22,33 @@ xpath_tip = './text()'
 xpath_href = './a/@href'
 xpath_title = './/text()'
 
+urllib3.disable_warnings()
+base_url = 'http://www.btxi.xyz/'
+url = base_url + 'list.php?class=guochan'
+
+headers = {
+    'Host': 'www.btbw.xyz',
+    # ':authority': 'www.btbw.xyz',
+    # 'Cookie': 'cookie: _ga=GA1.1.1947293559.1621949576; cf_chl_prog=a10; cf_clearance=e44314b49a81e7dbafe935bdb5f74efe2acd8f6f-1621955693-0-250; _ga_Q3P79YL0DW=GS1.1.1621955693.2.0.1621955736.0',
+    'cookie': '_ga=GA1.1.1947293559.1621949576; cf_clearance=e44314b49a81e7dbafe935bdb5f74efe2acd8f6f-1621955693-0-250; _ga_Q3P79YL0DW=GS1.1.1622037355.3.1.1622037391.0',
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36',
+
+    'sec-ch-ua-mobile': '?0',
+    'sec-fetch-dest': 'document',
+    'sec-fetch-mode': 'navigate',
+    'sec-fetch-site': 'none',
+    'sec-fetch-user': '?1',
+    'upgrade-insecure-requests': '1',
+}
+
 
 # 分页获取
 def get_page_data(page, data, keywords, start_date):
     page_url = url + '&page=' + str(page)
+    flag = False
     while True:
         try:
-            r = requests.get(page_url, headers=headers, timeout=15)
+            r = requests.get(page_url, headers=headers, timeout=15, verify=False)
             r.raise_for_status()  # 如果响应状态码不是 200，就主动抛出异常
         except requests.exceptions.RequestException as e:
             print(e)
@@ -55,9 +65,12 @@ def get_page_data(page, data, keywords, start_date):
                 # 时间
                 date_item = li_each.xpath(xpath_tip)[0]
                 date_str = re.findall(r'[\[](.*?)[\]]', date_item)
+                # print(date_item, date_str[0])
+                # exit()
                 if date_str[0] < start_date:
                     print('Page: ' + str(page) + ', No: ' + str(idx + 1) + ', 开始时间小于：' + start_date, '\n')
-                    return data
+                    flag = True
+                    return data, flag
 
                 # 截取
                 _str = li_each.xpath('./a//text()')[0]
@@ -75,7 +88,7 @@ def get_page_data(page, data, keywords, start_date):
                 # 判断是否包含keywords
                 if bool(re.search("|".join(keywords), _title, re.I)):
                     _href = li_each.xpath(xpath_href)[0]
-                    t = {'title': date_item[0] + _title}
+                    t = {'title': '[' + date_str[0] + '] ' + _title}
                     full_href = base_url + _href
                     t['href'] = xlwt.Formula('HYPERLINK("{}"; "{}")'.format(full_href, full_href))
                     # t['down'] = full_href
@@ -101,7 +114,7 @@ def get_page_data(page, data, keywords, start_date):
                     #         data.append(t)
                     #         time.sleep(random.randint(1, 3))
 
-            return data
+            return data, flag
 
 
 # 获取每列所占用的最大列宽
@@ -162,23 +175,27 @@ def main():
     start_time = time.perf_counter()
     data = []
     keywords1 = ("91汝工作室", '乌克兰', '推特网红', '推特女神', '推特极品', '极品网红', '宅男福利',
-                 '私人玩物', '女仆', '超粉嫩美鲍', '骚+浪+贱', '骚 浪 贱', '91SWEATTT', 'HEGRE', '超正点')
-    keywords = ('希希酱', '绯红小猫', '橘子酱', '恶犬', '香草少女', '九尾狐狸', '沐沐睡不着呀',
-                '来自喵星的岁酱', '露西宝宝', '原歆公主', '涂鸦少女', '小秋秋', '玩酱呀', '三寸',
-                '娜美妖姬', '比卡丘', '亲亲我吖', '我刚成年', '软糖呀', '桃桃酱',
-                '橘猫', '奈音', '小清殿下', "喵喵儿", '樱井奈奈', '怪污可优', '悠宝', '械师',
-                '夜夜主教', '赛高酱', '貂蝉', '王星雅', '浪味仙儿',
-                '发条', '习呆呆', '闵儿', '可爱的小猫', 'KANAMI', '姚安琪', 'LEXISCANDYSHOP',)
+                 '私人玩物', '超粉嫩美鲍', '骚+浪+贱', '骚 浪 贱', '91SWEATTT', 'HEGRE', '超正点',
+                 )
 
-    keywords3 = ("不见星空", '白袜袜格罗', '工口糯米姬', '押尾猫', "初音", '完具酱', '有喵酱',
-                 '91蜜桃', '小鸟酱', '苏苏')
+    keywords = ("不见星空", '白袜袜格罗', '工口糯米姬', '押尾猫', "初音", '完具酱', '有喵酱',
+                '91蜜桃', '小鸟酱', '苏苏',
+                '希希酱', '绯红小猫', '橘子酱', '恶犬', '香草少女', '九尾狐狸', '沐沐睡不着呀', '可爱的小猫',
+                '来自喵星的岁酱', '露西宝宝', '原歆公主', '涂鸦少女', '小秋秋', '玩酱呀', '三寸', '软耳奶猫',
+                '娜美妖姬', '比卡丘', '亲亲我吖', '我刚成年', '软糖呀', '桃桃酱', '咬一口小奈樱',
+                '橘猫', '奈音', '小清殿下', "喵喵儿", '樱井奈奈', '怪污可优', '械师',
+                '夜夜主教', '赛高酱', '貂蝉', '王星雅', '浪味仙儿', '夏玲蔓', '涵北',
+                '发条', '习呆呆', '闵儿', 'KANAMI', '姚安琪', 'LEXISCANDYSHOP')
 
-    file_name = "keywords2_0523_0523"
-    start_date = '05-23'
-    for i in range(1, 11):
-        data = get_page_data(i, data, keywords, start_date)
+    file_name = "keywords1_0527_0527"
+    start_date = '05-27'
+    for i in range(31, 40):
+        ret = get_page_data(i, data, keywords, start_date)
+        data = ret[0]
         print('page' + str(i) + ' done!')
-        time.sleep(random.randint(2, 4))
+        if ret[1]:
+            break
+        time.sleep(random.randint(3, 6))
 
     if len(data):
         print('done! 共 {} 条'.format(len(data)))
