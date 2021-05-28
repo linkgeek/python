@@ -11,6 +11,14 @@ import time
 import base64
 import random
 import re
+import webbrowser as wb
+import pandas as pd
+import os
+
+# 绝对路径
+work_dir = os.path.dirname(os.path.abspath(__file__))
+# 把当前路径切换到文件所在的路径
+os.chdir(work_dir)
 
 # 获取所有 li标签
 xpath_items = '//div[@id="content"]/div/ul/li[position()>1][position()<last()]'
@@ -171,7 +179,34 @@ def write_xls(data, file='test'):
     workbook.save('D:/Code/python/data/' + file + '.xls')
 
 
+# 读取 excel
+def read_xls():
+    path = '../data/sina-news.xls'
+    df = pd.read_excel(path, sheet_name="新闻")
+    data = df['网址'].tolist()
+    for idx, row in enumerate(data):
+        print(idx, row)
+
+    return data
+
+
+# 批量自动打开
+def open_browser(data, num=10):
+    m = 0
+    for i, val in enumerate(data):
+        chrome_path = "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s"
+        crl = wb.get(chrome_path)
+        if m > num:
+            m = 0
+            chrome_path_NW = "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s --new-window"
+            crl = wb.get(chrome_path_NW)
+        crl.open(val['href'])
+        m += 1
+
+
 def main():
+    read_xls()
+    exit()
     start_time = time.perf_counter()
     data = []
     keywords1 = ("91汝工作室", '乌克兰', '推特网红', '推特女神', '推特极品', '极品网红', '宅男福利',
