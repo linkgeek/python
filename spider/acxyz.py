@@ -70,16 +70,6 @@ def get_page_data(page, data, keywords, start_date):
             # 获取每页所有的li标签
             li_arr = dom.xpath(xpath_items)
             for idx, li_each in enumerate(li_arr):
-                # 时间
-                date_item = li_each.xpath(xpath_tip)[0]
-                date_str = re.findall(r'[\[](.*?)[\]]', date_item)
-                # print(date_item, date_str[0])
-                # exit()
-                if date_str[0] < start_date:
-                    print('Page: ' + str(page) + ', No: ' + str(idx + 1) + ', 开始时间小于：' + start_date, '\n')
-                    flag = True
-                    return data, flag
-
                 # 截取
                 _str = li_each.xpath('./a//text()')[0]
                 str_arr = _str.split("\'")
@@ -93,13 +83,25 @@ def get_page_data(page, data, keywords, start_date):
                 # print(_title)
                 # exit()
 
+                # 时间判断
+                date_item = li_each.xpath(xpath_tip)[0]
+                date_str = re.findall(r'[\[](.*?)[\]]', date_item)
+                t = {'title': '[' + date_str[0] + '] ' + _title}
+                # print(date_item, date_str[0])
+                # exit()
+                if date_str[0] < start_date:
+                    print('Page: ' + str(page) + ', No: ' + str(idx + 1) + ', Title: ' + t[
+                        "title"] + ', Href: ' + page_url, ', 开始时间小于：' + start_date, '\n')
+                    flag = True
+                    return data, flag
+
                 # 判断是否包含keywords
                 if bool(re.search("|".join(keywords), _title, re.I)):
                     _href = li_each.xpath(xpath_href)[0]
-                    t = {'title': '[' + date_str[0] + '] ' + _title}
+
                     full_href = base_url + _href
                     t['href'] = xlwt.Formula('HYPERLINK("{}"; "{}")'.format(full_href, full_href))
-                    # t['down'] = full_href
+                    t['url'] = full_href
                     print('Page: ' + str(page) + ', No: ' + str(idx + 1) + ', Title: ' + t[
                         "title"] + ', Href: ' + full_href,
                           '\n')
@@ -142,11 +144,11 @@ def write_xls(data, file='test'):
     # 创建一个Workbook对象
     workbook = xlwt.Workbook(encoding='utf-8', style_compression=0)
     # 创建一个sheet对象
-    worksheet = workbook.add_sheet('资源', cell_overwrite_ok=True)
+    worksheet = workbook.add_sheet('Sheet1', cell_overwrite_ok=True)
 
     worksheet.write(0, 0, "标题")
-    worksheet.write(0, 1, "链接")
-    # worksheet.write(0, 2, "下载")
+    worksheet.write(0, 1, "跳转")
+    worksheet.write(0, 2, "url")
 
     # 列数
     # col_num = [0 for x in range(0, len(data) + 1)]
@@ -156,7 +158,7 @@ def write_xls(data, file='test'):
     for i in range(len(data)):
         worksheet.write(i + 1, 0, data[i]["title"])
         worksheet.write(i + 1, 1, data[i]["href"])
-        # worksheet.write(i + 1, 2, data[i]["down"])
+        worksheet.write(i + 1, 2, data[i]["url"])
 
         # col_num[0] = len(data[i]["id"].encode('gb18030'))  # 计算每列值的大小
         # col_num[1] = len(data[i]["title"].encode('gb18030'))  # 计算每列值的大小
@@ -168,7 +170,7 @@ def write_xls(data, file='test'):
 
     # 获取每列最大宽度
     # col_max_num = get_max_col(col_list)
-    col_max_num = [80, 60, 0]
+    col_max_num = [80, 60, 40, 0]
 
     # 设置自适应列宽
     for i in range(0, len(col_max_num)):
@@ -180,51 +182,58 @@ def write_xls(data, file='test'):
 
 
 # 读取 excel
-def read_xls():
-    path = '../data/sina-news.xls'
-    df = pd.read_excel(path, sheet_name="新闻")
-    data = df['网址'].tolist()
-    for idx, row in enumerate(data):
-        print(idx, row)
+def read_xls(file_name):
+    path = f'../data/{file_name}.xls'
+    df = pd.read_excel(path, sheet_name="Sheet1")
+    data = df['url'].tolist()
+    # print(len(data), data)
+    # exit()
+    # for idx, row in enumerate(data):
+    #     print(idx, row, "\n")
 
     return data
 
 
 # 批量自动打开
-def open_browser(data, num=10):
+def open_browser(file_name):
+    data = read_xls(file_name)
+    num = 10
     m = 0
     for i, val in enumerate(data):
         chrome_path = "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s"
         crl = wb.get(chrome_path)
         if m > num:
             m = 0
-            chrome_path_NW = "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s --new-window"
-            crl = wb.get(chrome_path_NW)
-        crl.open(val['href'])
+            chrome_path_nw = "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s --new-window"
+            crl = wb.get(chrome_path_nw)
+        crl.open(val)
         m += 1
 
 
 def main():
-    read_xls()
+    file_name = "keywords3_0528"
+    open_browser(file_name)
     exit()
     start_time = time.perf_counter()
     data = []
+
+    start_date = '05-20'
+
     keywords1 = ("91汝工作室", '乌克兰', '推特网红', '推特女神', '推特极品', '极品网红', '宅男福利',
                  '私人玩物', '超粉嫩美鲍', '骚+浪+贱', '骚 浪 贱', '91SWEATTT', 'HEGRE', '超正点',
                  )
 
-    keywords = ("不见星空", '白袜袜格罗', '工口糯米姬', '押尾猫', "初音", '完具酱', '有喵酱',
-                '91蜜桃', '小鸟酱', '苏苏',
-                '希希酱', '绯红小猫', '橘子酱', '恶犬', '香草少女', '九尾狐狸', '沐沐睡不着呀', '可爱的小猫',
-                '来自喵星的岁酱', '露西宝宝', '原歆公主', '涂鸦少女', '小秋秋', '玩酱呀', '三寸', '软耳奶猫',
-                '娜美妖姬', '比卡丘', '亲亲我吖', '我刚成年', '软糖呀', '桃桃酱', '咬一口小奈樱',
-                '橘猫', '奈音', '小清殿下', "喵喵儿", '樱井奈奈', '怪污可优', '械师',
-                '夜夜主教', '赛高酱', '貂蝉', '王星雅', '浪味仙儿', '夏玲蔓', '涵北', '琉璃',
-                '发条', '习呆呆', '闵儿', 'KANAMI', '姚安琪', 'LEXISCANDYSHOP')
+    keywords2 = ("不见星空", '白袜袜格罗', '工口糯米姬', '押尾猫', '完具酱', '有喵酱',
+                 '91蜜桃', '苏苏', "初音",
+                 '希希酱', '绯红小猫', '橘子酱', '恶犬', '香草少女', '九尾狐狸', '沐沐睡不着呀', '可爱的小猫',
+                 '来自喵星的岁酱', '露西宝宝', '原歆公主', '涂鸦少女', '小秋秋', '玩酱呀', '三寸', '软耳奶猫',
+                 '娜美妖姬', '比卡丘', '亲亲我吖', '我刚成年', '软糖呀', '桃桃酱', '咬一口小奈樱',
+                 '橘猫', '奈音', '小清殿下', "喵喵儿", '樱井奈奈', '怪污可优', '械师',
+                 '夜夜主教', '赛高酱', '貂蝉', '王星雅', '浪味仙儿', '夏玲蔓', '涵北', '琉璃',
+                 '发条', '习呆呆', '闵儿', 'KANAMI', '姚安琪', 'LEXISCANDYSHOP')
+    keywords = ('教室', '91汝工作室', '乌克兰', '超粉嫩美鲍', '超正点')
 
-    file_name = "keywords1_0527_0527"
-    start_date = '05-27'
-    for i in range(31, 40):
+    for i in range(1, 201):
         ret = get_page_data(i, data, keywords, start_date)
         data = ret[0]
         print('page' + str(i) + ' done!')
