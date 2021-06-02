@@ -1,4 +1,10 @@
 import pandas as pd
+import os
+
+# 绝对路径
+work_dir = os.path.dirname(os.path.abspath(__file__))
+# 把当前路径切换到文件所在的路径
+os.chdir(work_dir)
 
 # io: 很明显, 是excel文件的路径+名字字符串
 # sheet_name: 返回指定的sheet, 默认返回全表，多表['sheet1', 'sheet2']
