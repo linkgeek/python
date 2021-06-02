@@ -54,6 +54,50 @@ def get_fund_rate(fund_code):
         return False
 
 
+# load js
+def download_js():
+    filePath = '../data/fundcode_search.js'
+    if os.path.isfile(filePath):
+        return False
+
+    headers = {
+        "Cookie": "qgqp_b_id=f8b59df051caea02b176f6d76db75887; EMFUND1=null; EMFUND2=null; EMFUND3=null; EMFUND4=null; EMFUND5=null; EMFUND6=null; EMFUND7=null; st_si=92310565820236; st_asi=delete; searchbar_code=160119; EMFUND0=null; EMFUND8=07-14%2021%3A54%3A31@%23%24%u5357%u65B9%u4E2D%u8BC1500ETF@%23%24510500; EMFUND9=07-25 23:07:36@#$%u5357%u65B9%u4E2D%u8BC1500ETF%u8054%u63A5A@%23%24160119; ASP.NET_SessionId=5ljqqn1s20zpfryhuw5fx4jw; st_pvi=06954122844047; st_sp=2020-05-20%2007%3A32%3A46; st_inirUrl=https%3A%2F%2Fwww.google.com%2F; st_sn=2; st_psi=20200725230736417-0-5210348614",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36"
+    }
+    url = "http://fund.eastmoney.com/js/fundcode_search.js"
+    # r = requests.get(url, headers)
+    # cont = re.findall('var r = (.*])', r.text)[0]  # 提取list
+    # ls = json.loads(cont)  # 将字符串个事的list转化为list格式
+    # all_fundCode = pd.DataFrame(ls, columns=['基金代码', '基金名称缩写', '基金名称', '基金类型', '基金名称拼音'])  # list转为DataFrame
+    # print(all_fundCode)
+    # exit()
+    # info = re.findall("(\[.*?\])", r.text[9:-2])
+
+    requests_info = requests.get(url, headers=headers)
+    if requests_info.status_code == 200:
+        html_bytes = requests_info.content
+        html_str = html_bytes.decode()
+        with open(filePath, 'w', encoding='utf8') as f:
+            f.write(html_str)
+    else:
+        print(f'loadJs-error-{requests_info.status_code}')
+    return True
+
+
+# 修改json文件
+def update_json():
+    file_path = "../data/test_config.json"
+    with open(file_path, "r", encoding='utf-8') as jsonFile:
+        data = json.load(jsonFile)
+
+    data["useCache"] = False
+    data["top"][0]['remark'] = 'remark'
+    data["location"] = "NewPath"
+
+    with open(file_path, "w", encoding='utf-8') as jsonFile:
+        json.dump(data, jsonFile, ensure_ascii=False)
+
+
 # 生成发送内容
 def gen_cont():
     rate_list = []
@@ -115,6 +159,9 @@ def send_work_wx(content):
 
 
 def main():
+    # download_js()
+    update_json()
+    exit()
     content = gen_cont()
     send_work_wx(content)
 

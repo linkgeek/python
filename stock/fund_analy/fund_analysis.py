@@ -129,7 +129,7 @@ def main():
     time_format = lambda x: time.strftime("%Y-%m-%d", time.localtime(x / 1e3))
     all_data_base = {}
     all_data = {}
-    config_key = 'medical_care'  # liquor_drink medical_care
+    config_key = 'top'  # liquor_drink medical_care new_energy
     for item in CONFIG[config_key]:
         fund_code = item['code']
         print(f'downloading... {fund_code}')
@@ -224,7 +224,7 @@ def main():
     print(df2)
 
     df2.stack().unstack(0).to_excel(
-        f'{DATA_PATH}/stock_fund/{config_key}_{time.strftime("%Y%m%d%H%M", time.localtime())}.xlsx', sheet_name='out')
+        f'{DATA_PATH}/stock_fund/{config_key}_{time.strftime("%Y%m%d%H", time.localtime())}.xlsx', sheet_name='out')
     df2.iloc[1:5, :].plot.barh(ax=axes[0], grid=True, fontsize=25)
 
     # 处理收益
@@ -233,7 +233,7 @@ def main():
     df.plot(ax=axes[1], grid=True, fontsize=25)
 
     fig.set_size_inches(20, 20)
-    fig.savefig(f'{DATA_PATH}/stock_fund/{config_key}_{time.strftime("%Y%m%d%H%M", time.localtime())}.png')
+    fig.savefig(f'{DATA_PATH}/stock_fund/{config_key}_{time.strftime("%Y%m%d%H", time.localtime())}.png')
 
 
 if __name__ == '__main__':
