@@ -31,14 +31,15 @@ xpath_href = './a/@href'
 xpath_title = './/text()'
 
 urllib3.disable_warnings()
+# http://www.btxi.xyz/list.php?class=guochan&page=4
 base_url = 'http://www.btxi.xyz/'
 url = base_url + 'list.php?class=guochan'
 
 headers = {
-    'Host': 'www.btbw.xyz',
+    'Host': 'www.btxi.xyz',
     # ':authority': 'www.btbw.xyz',
     # 'Cookie': 'cookie: _ga=GA1.1.1947293559.1621949576; cf_chl_prog=a10; cf_clearance=e44314b49a81e7dbafe935bdb5f74efe2acd8f6f-1621955693-0-250; _ga_Q3P79YL0DW=GS1.1.1621955693.2.0.1621955736.0',
-    'cookie': '_ga=GA1.1.1947293559.1621949576; cf_clearance=e44314b49a81e7dbafe935bdb5f74efe2acd8f6f-1621955693-0-250; _ga_Q3P79YL0DW=GS1.1.1622037355.3.1.1622037391.0',
+    'cookie': 'cf_chl_prog=a9; cf_clearance=92024117774c97ea8b776e43631e08350d44181c-1622475409-0-250; _ga=GA1.1.253862075.1622475410; _ga_Q3P79YL0DW=GS1.1.1622475410.4.1.1622475580.0',
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36',
 
     'sec-ch-ua-mobile': '?0',
@@ -186,11 +187,6 @@ def read_xls(file_name):
     path = f'../data/{file_name}.xls'
     df = pd.read_excel(path, sheet_name="Sheet1")
     data = df['url'].tolist()
-    # print(len(data), data)
-    # exit()
-    # for idx, row in enumerate(data):
-    #     print(idx, row, "\n")
-
     return data
 
 
@@ -211,30 +207,33 @@ def open_browser(file_name):
 
 
 def main():
-    file_name = "keywords3_0528"
+    file_name = "keywords1_0531_0602"
     open_browser(file_name)
     exit()
+
     start_time = time.perf_counter()
+    search_end_date = '05-31'
     data = []
 
-    start_date = '05-20'
-
     keywords1 = ("91汝工作室", '乌克兰', '推特网红', '推特女神', '推特极品', '极品网红', '宅男福利',
-                 '私人玩物', '超粉嫩美鲍', '骚+浪+贱', '骚 浪 贱', '91SWEATTT', 'HEGRE', '超正点',
-                 )
+                  '私人玩物', '超粉嫩美鲍', '骚+浪+贱', '骚 浪 贱', '91SWEATTT', 'HEGRE', '超正点',
+                  )
 
-    keywords2 = ("不见星空", '白袜袜格罗', '工口糯米姬', '押尾猫', '完具酱', '有喵酱',
-                 '91蜜桃', '苏苏', "初音",
-                 '希希酱', '绯红小猫', '橘子酱', '恶犬', '香草少女', '九尾狐狸', '沐沐睡不着呀', '可爱的小猫',
-                 '来自喵星的岁酱', '露西宝宝', '原歆公主', '涂鸦少女', '小秋秋', '玩酱呀', '三寸', '软耳奶猫',
-                 '娜美妖姬', '比卡丘', '亲亲我吖', '我刚成年', '软糖呀', '桃桃酱', '咬一口小奈樱',
-                 '橘猫', '奈音', '小清殿下', "喵喵儿", '樱井奈奈', '怪污可优', '械师',
-                 '夜夜主教', '赛高酱', '貂蝉', '王星雅', '浪味仙儿', '夏玲蔓', '涵北', '琉璃',
-                 '发条', '习呆呆', '闵儿', 'KANAMI', '姚安琪', 'LEXISCANDYSHOP')
-    keywords = ('教室', '91汝工作室', '乌克兰', '超粉嫩美鲍', '超正点')
+    keywords2 = ("不见星空", '白袜袜格罗', '押尾猫', '完具酱', '有喵酱', '工口糯米姬',
+                  '91蜜桃', '苏苏',
+                  '绯红小猫', '希希酱', '恶犬', '桃桃酱', '香草少女', '娜美妖姬',
+                  '九尾狐狸', '沐沐睡不着呀', '可爱的小猫', '蛋壳姬',
+                  '露西宝宝', '原歆公主', '涂鸦少女', '小秋秋', '玩酱呀', '三寸', '软耳奶猫',
+                  '比卡丘', '亲亲我吖', '我刚成年', '软糖呀', '咬一口小奈樱', '贪吃的小猫',
+                  '橘猫', '奈音', '小清殿下', "喵喵儿", '樱井奈奈', '怪污可优', '械师', '铃木美',
+                  '夜夜主教', '赛高酱', '貂蝉王星雅', '浪味仙儿', '夏玲蔓', '涵北', '琉璃', '弥漫',
+                  '来自喵星的岁酱', '可爱的小胖丁', '橘子酱', "初音", '桃小沫沫酱', '喵喵',
+                  '发条', '习呆呆', '闵儿', 'KANAMI', '姚安琪', 'LEXISCANDYSHOP')
+
+    keywords = ('黑龙江', '教室', '91汝工作室', '乌克兰', '超粉嫩美鲍', '超正点')
 
     for i in range(1, 201):
-        ret = get_page_data(i, data, keywords, start_date)
+        ret = get_page_data(i, data, keywords, search_end_date)
         data = ret[0]
         print('page' + str(i) + ' done!')
         if ret[1]:
