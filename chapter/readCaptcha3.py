@@ -22,7 +22,7 @@ def recognize_text(image):
     print(f'识别结果：{text}')
 
 
-src = cv.imread(r'./numCaptcha.png')
+src = cv.imread(r'numCaptcha.png')
 cv.imshow('input image', src)
 recognize_text(src)
 cv.waitKey(0)

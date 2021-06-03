@@ -1,0 +1,46 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>hello</title>
+    <script>
+			function show_text(id, text){
+				document.getElementById(id).innerHTML=text;
+			}
+			function show_color(id, color){
+				document.getElementById(id).style.color=color;
+			}
+
+    </script>
+    <style>
+		div p { color : #f00; }
+		.py { font-size : 40px; }
+		#1l { width : 200px; font-size : 40px; }
+
+    </style>
+</head>
+<body>
+
+<form action="/upload/123" method="post">
+    username:<input type="text" name="username" value=""/>
+    password:<input type="password" name="password" value=""/>
+    <input type="submit" value="submit">
+</form>
+
+<form action="/upload/123" method="post" enctype="multipart/form-data">
+    <input type="file" id="img" name="file_path">
+    <button type="submit">submit</button>
+</form>
+
+<h1>hello</h1>
+<div>World</div>
+<p class='py'>python</p>
+<label id='1l'>test</label>
+<div>
+    <a href="javascript:void(0);" onclick='javascript:show_text("1l", "My First Javascript");'>My First Javascript</a>
+    <a href="javascript:void(0);" onclick='javascript:show_text("1l", "Hello Python");'>Hello Python</a>
+
+    <a href="javascript:void(0);" onclick='javascript:show_color("1l", "#f00");'>Red</a>
+    <a href="javascript:void(0);" onclick='javascript:show_color("1l", "#0f0");'>Green</a>
+</div>
+</body>
+</html>

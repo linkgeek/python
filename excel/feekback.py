@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 import json
+import re
 
 # 绝对路径
 work_dir = os.path.dirname(os.path.abspath(__file__))
@@ -15,7 +16,8 @@ os.chdir(work_dir)
 # usecols：读取指定的列, 也可以通过名字或索引值
 
 # read_excel()用来读取excel文件，记得加文件后缀
-path = '../data/对话记录1-2362.xls'
+# path = '../data/对话记录1-2362.xls'
+path = './对话记录1-2362.xls'
 # pd.read_excel('例子'.decode('utf-8))
 df = pd.read_excel(path, sheet_name='1-2362')
 
@@ -35,9 +37,12 @@ ncols = df.columns.size
 # print(df.iloc[0, 0])
 cont = df.iloc[0, 12]
 cont_list = cont.split("\n")
-for i, item in enumerate(cont_list):
-    if '访客>' in item:
-        print(i, cont_list[i+1])
+# for i, item in enumerate(cont_list):
+#     if '访客>' in item:
+#         print(i, cont_list[i+1])
+#         with open("./对话记录1-2362.txt", mode="a", encoding="utf-8") as f:
+#             f.write(cont_list[i+1])
+#             f.write("\n")
 # print(cont)
 # print('--------------------------华丽的分割线----------------------------')
 
@@ -54,10 +59,27 @@ for i, item in enumerate(cont_list):
 # for iCol in range(ncols):
 #     print(df.iloc[iRow, iCol])
 #
-# # 遍历逐行逐列
-# for iRow in range(nrows):
-#     for iCol in range(ncols):
-#         print(df.iloc[iRow, iCol])
+# 遍历逐行逐列
+contain_ignore = ('【收到不支持的消息类型，暂无法显示】', '你好', '在吗', '[图片]')
+
+with open('../data/config/ignore_words.txt', 'r', encoding='UTF-8') as f:
+    stopwords = f.read().split("\n")
+
+print(stopwords)
+exit()
+for iRow in range(nrows):
+    cont = df.iloc[iRow, 12]
+    cont_list = cont.split("\n")
+    for i, item in enumerate(cont_list):
+        if '访客>' in item:
+            if cont_list[i + 1] not in stopwords:
+                continue
+            if bool(re.search("|".join(contain_ignore), cont_list[i + 1], re.I)):
+                continue
+            print(i, cont_list[i + 1])
+            with open("./对话记录1-2362.txt", mode="a", encoding="utf-8") as f:
+                f.write(cont_list[i + 1].strip())
+                f.write("\n")
 
 # head() 默认显示前5行，可在括号内填写要显示的条数
 # print('显示表格前三行:', df.head(3))
