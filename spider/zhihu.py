@@ -25,7 +25,7 @@ API_KEY = "giFiN1wphxIY8lIosxMD0DMd"
 SECRET_KEY = "M1yNChTkokPqqsaw4mmqajtn9QOS1u5o"
 
 # 文件存放目录名，相对于当前目录
-DIR = "../data/images/top"
+DIR = "../data/image/top"
 # 过滤颜值阈值，存储空间大的请随意
 BEAUTY_THRESHOLD = 45
 # 如果权限错误，浏览器中打开知乎，在开发者工具复制一个，无需登录
@@ -101,7 +101,7 @@ def process_activities(datums, face_detective):
         images = html.xpath("//img/@src")
         if len(images) == 0:
             continue
-        print("images: " + str(images))
+        print("image: " + str(images))
         for image in images:
             if not image.startswith("http"):
                 continue

@@ -15,7 +15,7 @@ huseg = hub.Module(name='deeplabv3p_xception65_humanseg')
 base_dir = os.path.abspath(os.path.dirname(__file__))
 
 # 获取当前文件目录
-path = os.path.join(base_dir, 'images/')
+path = os.path.join(base_dir, 'image/')
 
 # 获取文件列表
 files = [path + i for i in os.listdir(path)]

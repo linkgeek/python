@@ -37,7 +37,7 @@ def save_photo_wall(noTipImage, imgCount):
         for x in range(w):
             try:
                 if picMatrix[y][x] == 1:
-                    fromImage = Image.open(r"./images/jpg/%s.jpg" % str(imgIndex % imgCount))
+                    fromImage = Image.open(r"./image/jpg/%s.jpg" % str(imgIndex % imgCount))
                     fromImage = fromImage.resize((100, 100), Image.ANTIALIAS)
                     toImage.paste(fromImage, (x * mw, y * mw))
                     imgIndex += 1

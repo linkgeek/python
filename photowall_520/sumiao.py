@@ -23,7 +23,7 @@ def draw(img, blur=25, alpha=1.0):
             b = img2.getpixel((x, y))
             img1.putpixel((x, y), dodge(a, b, alpha))
     img1.show()
-    img1.save('./images/sumiao.png')
+    img1.save('./image/sumiao.png')
 
 
 draw(img)

@@ -13,6 +13,11 @@ from pyecharts import options as opts
 from pyecharts.globals import ThemeType
 from pyecharts.charts import Bar
 from pyecharts.charts import Pie
+
+# 导入输出图片工具
+from pyecharts.render import make_snapshot
+# 使用snapshot-selenium 渲染图片
+from snapshot_selenium import snapshot
 import json
 import os
 
@@ -24,20 +29,22 @@ os.chdir(work_dir)
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0', }
 fund_path = '../../data/html/'
 
+
 # 饼状图
 def pie(name, value, picname, tips):
     c = (
         Pie(init_opts=opts.InitOpts(width="1000px", height="500px", theme=ThemeType.CHALK))
-        .add("", [list(z) for z in zip(name, value)], center=["40%", "50%"])
-        .set_colors(["blue", "green", "yellow", "red", "pink", "orange", "purple"])  # 设置颜色
-        .set_global_opts(
+            .add("", [list(z) for z in zip(name, value)], center=["40%", "50%"])
+            .set_colors(["blue", "green", "yellow", "red", "pink", "orange", "purple"])  # 设置颜色
+            .set_global_opts(
             title_opts=opts.TitleOpts(title="" + str(tips)),
             legend_opts=opts.LegendOpts(type_="scroll", pos_left="75%", orient="vertical"),  # 调整图例位置
         )
-        .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}: {c}"))
-        .render(fund_path + str(picname) + ".html")
+            .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}: {c}"))
+            #.render(fund_path + str(picname) + ".png")
     )
-
+    # 输出保存为图片
+    make_snapshot(snapshot, c.render(), fund_path + str(picname) + ".png")
 
 # 柱形图
 def bars(name, dict_values):
