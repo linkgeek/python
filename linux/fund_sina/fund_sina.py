@@ -9,6 +9,7 @@ import os
 import operator
 import requests
 from bs4 import BeautifulSoup
+from pyquery import PyQuery as pq
 
 # 绝对路径
 work_dir = os.path.dirname(os.path.abspath(__file__))
@@ -25,7 +26,7 @@ with open('../data/fund_config.json', 'r', encoding='utf8') as f:
     CONFIG = json.load(f)
 
 
-# 获取基金行情
+# 获取基金涨幅[新浪财经]
 def get_fund_rate(fund_code):
     """
     获取基金涨跌幅信息：信息来源（新浪财经 http://stocks.sina.cn/fund/）
@@ -52,6 +53,32 @@ def get_fund_rate(fund_code):
             return False
     except:
         return False
+
+
+# 获取基金涨幅[天天基金]
+def get_eastmoney_rate(fund_code):
+    try:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.62 Safari/537.36'
+        }
+        url = 'http://fund.eastmoney.com/%s.html' % fund_code
+        resp = requests.get(url, headers=headers)
+        if resp.status_code == 200:
+            resp.encoding = 'utf-8'
+            html = resp.text
+            doc = pq(html)
+            name = doc(
+                '#body > div:nth-child(11) > div > div > div.fundDetail-header > div.fundDetail-tit > div').text()
+            prev_val = doc(
+                '#body > div:nth-child(11) > div > div > fundDetail-main > div.fundInfoItem > div.dataOfFund > dl.dataItem02 > dd.dataNums > span:nth-child(1)').text()
+            value = doc('#gz_gsz').text()
+            print(name, prev_val, value)
+            exit()
+            return name, value
+        return None
+    except Exception as e:
+        print('错误信息%s' % e)
+        return None
 
 
 # load js
@@ -159,6 +186,8 @@ def send_work_wx(content):
 
 
 def main():
+    get_eastmoney_rate(161725)
+    exit()
     # download_js()
     update_json()
     exit()
