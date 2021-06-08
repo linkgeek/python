@@ -217,6 +217,8 @@ def main():
                 all_data[fund_code][index] = values[count]
                 count = count + 1
 
+    print(all_data_base)
+    exit()
     # 保存数据
     fig, axes = plt.subplots(2, 1)
     # 处理基本信息

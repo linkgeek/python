@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
+import json
 
 
 class Fund:
@@ -67,3 +68,55 @@ class Fund:
         for col, col_name in enumerate(heads):
             data[col_name] = np_records[:, col]
         return data
+
+    # 获取基金1周-5年涨幅[蛋卷]
+    def get_danjuan_history_rise(self, code):
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0',
+        }
+        fu_url = "https://danjuanapp.com/djapi/fund/derived/" + str(code)
+        res = requests.get(fu_url, headers=headers)
+        res.encoding = 'utf-8'
+        s = json.loads(res.text)
+        data = s['data']
+
+        values = []
+
+        # 防止基金最长时间不够1年、2年、5年的情况报错，用0填充
+        # 近1周
+        try:
+            values.append(data['nav_grl1w'])
+        except:
+            values.append(0)
+        # 近1月
+        try:
+            values.append(data['nav_grl1m'])
+        except:
+            values.append(0)
+        # 近3月
+        try:
+            values.append(data['nav_grl3m'])
+        except:
+            values.append(0)
+        # 近6月
+        try:
+            values.append(data['nav_grl6m'])
+        except:
+            values.append(0)
+        # 近1年
+        try:
+            values.append(data['nav_grl1y'])
+        except:
+            values.append(0)
+        # 近3年
+        try:
+            values.append(data['nav_grl3y'])
+        except:
+            values.append(0)
+        # 近5年
+        try:
+            values.append(data['nav_grl5y'])
+        except:
+            values.append(0)
+
+        return values

@@ -13,6 +13,8 @@ from pyecharts import options as opts
 from pyecharts.globals import ThemeType
 from pyecharts.charts import Bar
 from pyecharts.charts import Pie
+import matplotlib.pyplot as plt
+from pandas import DataFrame
 
 # 导入输出图片工具
 from pyecharts.render import make_snapshot
@@ -20,6 +22,7 @@ from pyecharts.render import make_snapshot
 from snapshot_selenium import snapshot
 import json
 import os
+import time
 
 # 绝对路径
 work_dir = os.path.dirname(os.path.abspath(__file__))
@@ -27,8 +30,9 @@ work_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(work_dir)
 
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0', }
-fund_path = '../../data/image/'
-path_html = '../../data/html/'
+data_path = '../../data/'
+fund_path = data_path + 'image/'
+path_html = data_path + 'html/'
 
 
 # 饼状图
@@ -109,6 +113,11 @@ def silder(name, value, tips):
 dict_type = {"股票型": 1, "混合型": 3, "债券型": 2, "指数型": 5, "QDII型": 11}
 # 时间
 dict_time = {'1w': '近1周', '1m': '近1月', '3m': '近3月', '6m': '近6月', '1y': '近1年', '2y': '近2年', '3y': '近3年', '5y': '近5年'}
+
+# 加载config
+CONFIG = {}
+with open(f'{data_path}config/fund_config.json', 'r', encoding='utf8') as f:
+    CONFIG = json.load(f)
 
 
 # 分析1：各个阶段涨跌幅前10名
@@ -206,8 +215,67 @@ def analysis2(time='1w'):
     print(code_value)
 
 
-# 分析3：获取各类基金某阶段中第一名基金的近30个交易日净值情况
+# float格式化
+def getFloat(syl_1n):
+    try:
+        return float(syl_1n)
+    except Exception as e:
+        return 0.0
+
+
+# 分析3：多基金各个阶段的涨跌幅情况
 def analysis3():
+    all_data_base = {}
+    config_key = 'top'  # liquor_drink medical_care new_energy
+    data_map = {
+        'nav_grl1w': '近1周',
+        'nav_grl1m': '近1月',
+        'nav_grl3m': '近3月',
+        'nav_grl6m': '近6月',
+        'nav_grl1y': '近1年',
+        'nav_grl2y': '近2年',
+        'nav_grl3y': '近3年',
+        'nav_grl5y': '近5年',
+        'nav_grbase': '成立以来',
+        'end_date': '截止时间',
+    }
+    for obj in CONFIG[config_key]:
+        code = obj['code']
+        print(f'loading... {code}')
+        cname = obj['name']
+        fu_url = "https://danjuanapp.com/djapi/fund/derived/" + str(code)
+        res = requests.get(fu_url, headers=headers)
+        res.encoding = 'utf-8'
+        s = json.loads(res.text)
+        data = s['data']
+
+        all_data_base[cname] = {}
+        all_data_base[cname]['代码'] = code
+
+        # 防止基金最长时间不够1年、2年、5年的情况报错，用0填充
+        for key, val in data_map.items():
+            try:
+                if key == 'end_date':
+                    all_data_base[cname][val] = data[key]
+                else:
+                    all_data_base[cname][val] = round(float(data[key]), 2)
+            except:
+                all_data_base[cname][val] = 0
+
+    # 保存数据
+    fig, axes = plt.subplots(2, 1)
+    # 处理基本信息
+    df2 = DataFrame(all_data_base)
+    print(df2)
+
+    df2.stack().unstack(0).to_excel(
+        f'{data_path}/stock_fund/danjuan_{config_key}_{time.strftime("%Y%m%d%H", time.localtime())}.xlsx',
+        sheet_name='out')
+    df2.iloc[1:5, :].plot.barh(ax=axes[0], grid=True, fontsize=25)
+
+
+# 分析3：获取各类基金某阶段中第一名基金的近30个交易日净值情况
+def analysis4():
     code_value = []
     for key in dict_type:
         #  获取近1月排名第一名基金代号
@@ -236,13 +304,14 @@ def analysis3():
         silder(name, value, tip)
     print(code_value)
 
-# name =['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15']
-# value=[34,42,12,37,76,11,13,53,42,23,43,64,67,22,41]
 # 分析1： 各类基金各个阶段的涨跌幅前10名
 # analysis1()
 
 # 分析2：各类基金第一名基金各个阶段的涨跌幅情况
 # analysis2()
 
-# 分析3：近30个交易日净值情况
+# 分析3：各基金各个阶段的涨跌幅情况
 analysis3()
+
+# 分析4：近30个交易日净值情况
+# analysis4()
