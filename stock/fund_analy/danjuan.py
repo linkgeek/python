@@ -27,7 +27,7 @@ work_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(work_dir)
 
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0', }
-fund_path = '../../data/html/'
+fund_path = '../../data/images/'
 
 
 # 饼状图
@@ -41,10 +41,11 @@ def pie(name, value, picname, tips):
             legend_opts=opts.LegendOpts(type_="scroll", pos_left="75%", orient="vertical"),  # 调整图例位置
         )
             .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}: {c}"))
-            #.render(fund_path + str(picname) + ".png")
+        # .render(fund_path + str(picname) + ".png")
     )
     # 输出保存为图片
     make_snapshot(snapshot, c.render(), fund_path + str(picname) + ".png")
+
 
 # 柱形图
 def bars(name, dict_values):
