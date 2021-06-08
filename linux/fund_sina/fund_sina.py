@@ -10,6 +10,8 @@ import operator
 import requests
 from bs4 import BeautifulSoup
 from pyquery import PyQuery as pq
+import pandas as pd
+import numpy as np
 
 # 绝对路径
 work_dir = os.path.dirname(os.path.abspath(__file__))
@@ -55,7 +57,7 @@ def get_fund_rate(fund_code):
         return False
 
 
-# 获取基金涨幅[天天基金]
+# 获取基金实时涨幅估值[天天基金]
 def get_eastmoney_rate(fund_code):
     try:
         headers = {
@@ -90,6 +92,7 @@ def get_eastmoney_rate(fund_code):
         return False
 
 
+# 获取基金实时涨幅估值2[天天基金]
 def get_eastmoney_js(fund_code):
     try:
         headers = {
@@ -107,8 +110,7 @@ def get_eastmoney_js(fund_code):
             # print('估算值：%s' % data['gsz'])
             # print('估算增量：%s%%' % data['gszzl'])
             # print('估值时间：%s' % data['gztime'])
-            exit()
-            return {'now': data['gszzl'], 'prev': float(prev_growth.split("%")[0])}
+            return data['gszzl']
         else:
             print(f'loadJs-error-{resp.status_code}')
         return False
@@ -147,7 +149,7 @@ def download_js():
     return True
 
 
-# 修改json文件
+# 修改json配置文件
 def update_json():
     file_path = "../data/test_config.json"
     with open(file_path, "r", encoding='utf-8') as jsonFile:
