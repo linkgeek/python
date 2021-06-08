@@ -27,7 +27,8 @@ work_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(work_dir)
 
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0', }
-fund_path = '../../data/images/'
+fund_path = '../../data/image/'
+path_html = '../../data/html/'
 
 
 # 饼状图
@@ -48,36 +49,46 @@ def pie(name, value, picname, tips):
 
 
 # 柱形图
-def bars(name, dict_values):
+def bars(name, dict_values, title):
     # 链式调用
     c = (
         Bar(
-            init_opts=opts.InitOpts(  # 初始配置项
+            init_opts=opts.InitOpts(
                 theme=ThemeType.MACARONS,
                 animation_opts=opts.AnimationOpts(
-                    animation_delay=1000, animation_easing="cubicOut"  # 初始动画延迟和缓动效果
-                ))
+                    animation_delay=1000, animation_easing="cubicOut"
+                )
+            )
         )
             .add_xaxis(xaxis_data=name)  # x轴
-            .add_yaxis(series_name="股票型", yaxis_data=dict_values['股票型'])  # y轴
-            .add_yaxis(series_name="混合型", yaxis_data=dict_values['混合型'])  # y轴
-            .add_yaxis(series_name="债券型", yaxis_data=dict_values['债券型'])  # y轴
-            .add_yaxis(series_name="指数型", yaxis_data=dict_values['指数型'])  # y轴
-            .add_yaxis(series_name="QDII型", yaxis_data=dict_values['QDII型'])  # y轴
+            .add_yaxis(series_name="股票型", y_axis=dict_values['股票型'])  # y轴
+            .add_yaxis(series_name="混合型", y_axis=dict_values['混合型'])
+            .add_yaxis(series_name="债券型", y_axis=dict_values['债券型'])
+            .add_yaxis(series_name="指数型", y_axis=dict_values['指数型'])
+            .add_yaxis(series_name="QDII型", y_axis=dict_values['QDII型'])
             .set_global_opts(
-            title_opts=opts.TitleOpts(title='涨跌幅', subtitle='xxx绘制',  # 标题配置和调整位置
+            title_opts=opts.TitleOpts(title=title, subtitle='',
                                       title_textstyle_opts=opts.TextStyleOpts(
-                                          font_family='SimHei', font_size=25, font_weight='bold', color='red',
-                                      ), pos_left="90%", pos_top="10",
+                                          font_family='SimHei', font_size=20, font_weight='bold', color='red',
+                                      ), pos_left="28%", pos_top="10",
                                       ),
             xaxis_opts=opts.AxisOpts(name='阶段', axislabel_opts=opts.LabelOpts(rotate=45)),
+            # 图例设置
+            legend_opts=opts.LegendOpts(
+                pos_left='right',  # 图例放置的位置，分上下左右，可用左右中表示，也可用百分比表示
+                pos_top='center',
+                orient='vertical',  # horizontal、vertical #图例放置的方式 横着放or竖着放
+                textstyle_opts=opts.TextStyleOpts(
+                    font_size=12,
+                    font_family='Times New Roman',
+                ),
+            ),
             # 设置x名称和Label rotate解决标签名字过长使用
             yaxis_opts=opts.AxisOpts(name='涨跌点'),
 
         )
-            .render("基金各个阶段涨跌幅.html")
+            .render(path_html + "各类基金中第一名基金各个阶段的涨跌幅.html")
     )
-    c.render()
 
 
 # 拉伸图
@@ -85,68 +96,65 @@ def silder(name, value, tips):
     c = (
         Bar(init_opts=opts.InitOpts(theme=ThemeType.DARK))
             .add_xaxis(xaxis_data=name)
-            .add_yaxis(tips, yaxis_data=value)
+            .add_yaxis(tips, y_axis=value)
             .set_global_opts(
             title_opts=opts.TitleOpts(title=str(tips) + "近30个交易日净值情况"),
             datazoom_opts=[opts.DataZoomOpts(), opts.DataZoomOpts(type_="inside")],
         )
-            .render(str(tips) + "近30个交易日净值情况.html")
+            .render(path_html + str(tips) + "近30个交易日净值情况.html")
     )
 
 
 # 基金类型
 dict_type = {"股票型": 1, "混合型": 3, "债券型": 2, "指数型": 5, "QDII型": 11}
 # 时间
-dict_time0 = {'近一周': '1w', '近一月': '1m', '近三月': '3m', '近六月': '6m', '近1年': '1y', '近2年': '2y', '近3年': '3y', '近5年': '5y'}
-dict_time = {
-    '1w': '近一周',
-    '1m': '近一月',
-    '3m': '近三月',
-    '6m': '近六月',
-    '1y': '近1年',
-    '2y': '近2年',
-    '3y': '近3年',
-    '5y': '近5年'
-}
+dict_time = {'1w': '近1周', '1m': '近1月', '3m': '近3月', '6m': '近6月', '1y': '近1年', '2y': '近2年', '3y': '近3年', '5y': '近5年'}
 
 
-# #分析1： 近一月涨跌幅前10名
-def analysis1(time='1w'):
+# 分析1：各个阶段涨跌幅前10名
+def analysis1():
+    for f_zh, f_type in dict_type.items():
+        for t_en, t_zh in dict_time.items():
+            url = "https://danjuanapp.com/djapi/v3/filter/fund?type=" + str(
+                f_type) + "&order_by=" + t_en + "&size=10&page=1"
+            res = requests.get(url, headers=headers)
+            res.encoding = 'utf-8'
+            s = json.loads(res.text)
+            s = s['data']['items']
+            name = []
+            value = []
+            print('\n{}基金{}涨跌幅前10名'.format(f_zh, t_zh))
+            print('--------------------------华丽的分割线----------------------------')
+            for i in range(0, len(s)):
+                print(s[i]['fd_name'] + ": " + s[i]['yield'])
+                code = s[i]['fd_code']
+                name.append(s[i]['fd_name'] + "\n" + code)
+                value.append(s[i]['yield'])
+            # 开始绘图
+            title = f'{f_zh}基金{t_zh}涨跌幅前10名'
+            pie(name, value, title, title)
+
+
+# 分析2：获取各类基金某阶段中第一名基金的各个阶段的涨跌幅情况
+def analysis2(time='1w'):
+    name = ['近1周', '近1月', '近3月', '近6月', '近1年', '近3年', '近5年']
+    # 五类基金
+    dict_value = {}
+    code_value = []
+    title = dict_time[time] + "第一名基金的各个阶段的涨跌幅情况"
+
     for key in dict_type:
+        # 获取排名第一名基金代号
         url = "https://danjuanapp.com/djapi/v3/filter/fund?type=" + str(
             dict_type[key]) + "&order_by=" + time + "&size=10&page=1"
         res = requests.get(url, headers=headers)
         res.encoding = 'utf-8'
         s = json.loads(res.text)
-        s = s['data']['items']
-        name = []
-        value = []
-        print('\n{}基金{}涨跌幅前10名'.format(key, dict_time[time]))
-        print('--------------------------华丽的分割线----------------------------')
-        for i in range(0, len(s)):
-            print(s[i]['fd_name'] + ": " + s[i]['yield'])
-            name.append(s[i]['fd_name'])
-            value.append(s[i]['yield'])
-        # 开始绘图
-        pie(name, value, str(key) + "基金涨跌幅", "[" + str(key) + "]基金近一月涨跌幅前10名")
-
-
-# 分析2： 基金各个阶段涨跌幅
-def analysis2():
-    name = ['近1周', '近1月', '近3月', '近6月', '近1年', '近3年', '近5年']
-    # 五类基金
-    dict_value = {}
-
-    for key in dict_type:
-        # 获取排名第一名基金代号
-        url = "https://danjuanapp.com/djapi/v3/filter/fund?type=" + str(dict_type[key]) + "&order_by=1w&size=10&page=1"
-        res = requests.get(url, headers=headers)
-        res.encoding = 'utf-8'
-        s = json.loads(res.text)
         # 取第一名
         fd_code = s['data']['items'][0]['fd_code']
+        code_value.append(fd_code)
 
-        #  获取排名第一名基金各个阶段情况
+        # 获取排名第一名基金各个阶段涨幅情况
         fu_url = "https://danjuanapp.com/djapi/fund/derived/" + str(fd_code)
         res = requests.get(fu_url, headers=headers)
         res.encoding = 'utf-8'
@@ -193,15 +201,16 @@ def analysis2():
             values.append(0)
         # 添加到集合中
         dict_value[key] = values
-    print(name, dict_value)
-    # exit()
-    bars(name, dict_value)
+
+    bars(name, dict_value, title)
+    print(code_value)
 
 
-# 分析3： 近30个交易日净值情况
+# 分析3：获取各类基金某阶段中第一名基金的近30个交易日净值情况
 def analysis3():
+    code_value = []
     for key in dict_type:
-        #  获取排名第一名基金代号
+        #  获取近1月排名第一名基金代号
         url = "https://danjuanapp.com/djapi/v3/filter/fund?type=" + str(
             dict_type[key]) + "&order_by=1w&size=10&page=1"
         res = requests.get(url, headers=headers)
@@ -209,6 +218,7 @@ def analysis3():
         s = json.loads(res.text)
         # 取第一名
         fd_code = s['data']['items'][0]['fd_code']
+        code_value.append(fd_code)
 
         #  获取排名第一名基金近30个交易日净值情况
         fu_url = "https://danjuanapp.com/djapi/fund/nav/history/" + str(fd_code) + "?size=30&page=1"
@@ -222,16 +232,17 @@ def analysis3():
             name.append(data[k]['date'])
             value.append(data[k]['nav'])
 
-        silder(name, value, key)
-
+        tip = key + "[" + fd_code + "]"
+        silder(name, value, tip)
+    print(code_value)
 
 # name =['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15']
 # value=[34,42,12,37,76,11,13,53,42,23,43,64,67,22,41]
-# 分析1： 近一月涨跌幅前10名
-analysis1()
+# 分析1： 各类基金各个阶段的涨跌幅前10名
+# analysis1()
 
-# 分析2：基金各个阶段涨跌幅
+# 分析2：各类基金第一名基金各个阶段的涨跌幅情况
 # analysis2()
 
 # 分析3：近30个交易日净值情况
-# analysis3()
+analysis3()

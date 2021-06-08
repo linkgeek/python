@@ -9,6 +9,7 @@ import os
 import operator
 import requests
 from bs4 import BeautifulSoup
+from pyquery import PyQuery as pq
 
 # 绝对路径
 work_dir = os.path.dirname(os.path.abspath(__file__))
@@ -25,7 +26,7 @@ with open('../data/fund_config.json', 'r', encoding='utf8') as f:
     CONFIG = json.load(f)
 
 
-# 获取基金行情
+# 获取基金涨幅[新浪财经]
 def get_fund_rate(fund_code):
     """
     获取基金涨跌幅信息：信息来源（新浪财经 http://stocks.sina.cn/fund/）
@@ -51,6 +52,68 @@ def get_fund_rate(fund_code):
         else:
             return False
     except:
+        return False
+
+
+# 获取基金涨幅[天天基金]
+def get_eastmoney_rate(fund_code):
+    try:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.62 Safari/537.36'
+        }
+        url = 'http://fund.eastmoney.com/%s.html' % fund_code
+        resp = requests.get(url, headers=headers)
+        print(time.time(), int(round(time.time() * 1000)))
+        exit()
+        # http://fundgz.1234567.com.cn/js/000001.js?rt=1623073418655  1623078163.8277621
+        if resp.status_code == 200:
+            resp.encoding = "UTF-8"
+            soup = BeautifulSoup(resp.text, "html.parser")
+            result = soup.findAll(attrs={"id": "gz_gszzl"})
+            prev_growth = soup.findAll(attrs={"class": "ui-font-middle ui-color-red ui-num"})
+            print(result)
+            exit()
+
+            resp.encoding = 'utf-8'
+            html = resp.text
+            doc = pq(html)
+            print(doc('#gz_gszzl'), doc('#gz_gszzl').text())
+            name = doc(
+                '#body > div:nth-child(11) > div > div > div.fundDetail-header > div.fundDetail-tit > div').text()
+            value = doc('span#gz_gszzl').text()
+            print(name, value)
+            exit()
+            return name, value
+        return False
+    except Exception as e:
+        print('错误信息%s' % e)
+        return False
+
+
+def get_eastmoney_js(fund_code):
+    try:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.62 Safari/537.36'
+        }
+        stamp = int(round(time.time() * 1000))
+        url = f'http://fundgz.1234567.com.cn/js/{fund_code}.js?rt={stamp}'
+        resp = requests.get(url, headers=headers)
+        if resp.status_code == 200:
+            data = json.loads(re.match(".*?({.*}).*", resp.text, re.S).group(1))
+            # print('基金编码：%s' % data['fundcode'])
+            # print('基金名称：%s' % data['name'])
+            # print('单位净值：%s' % data['dwjz'])
+            # print('净值日期：%s' % data['jzrq'])
+            # print('估算值：%s' % data['gsz'])
+            # print('估算增量：%s%%' % data['gszzl'])
+            # print('估值时间：%s' % data['gztime'])
+            exit()
+            return {'now': data['gszzl'], 'prev': float(prev_growth.split("%")[0])}
+        else:
+            print(f'loadJs-error-{resp.status_code}')
+        return False
+    except Exception as e:
+        print('错误信息%s' % e)
         return False
 
 
@@ -107,7 +170,8 @@ def gen_cont():
         if curr_rate is not False:
             point_rate = obj['rate']
             if point_rate[0] < curr_rate < point_rate[1]:
-                continue
+                print()
+                # continue
         else:
             curr_rate = 0
         code_dict = {
@@ -159,10 +223,15 @@ def send_work_wx(content):
 
 
 def main():
+    get_eastmoney_js(161725)
+    # get_eastmoney_rate(161725)
+    # exit()
     # download_js()
-    update_json()
-    exit()
+    # update_json()
+    # exit()
     content = gen_cont()
+    print(content)
+    exit()
     send_work_wx(content)
 
 
