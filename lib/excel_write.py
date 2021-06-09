@@ -35,8 +35,10 @@ class ExcelWrite:
         col_list = []
 
         # 表头
+        # 字体加粗
+        style = xlwt.easyxf('font: bold on')
         for i, name in enumerate(header):
-            self.sheets[sheet_name].write(0, i, name)
+            self.sheets[sheet_name].write(0, i, name, style)
             # 设置行高
             self.sheets[sheet_name].row(0).height_mismatch = True
             self.sheets[sheet_name].row(0).height = 20 * 24  # 20为基准数，24磅
@@ -45,14 +47,11 @@ class ExcelWrite:
         # 记录一行每列写入的长度
         col_list.append(copy.copy(col_num))
 
-        # 字体加粗
-        style = xlwt.easyxf('font: bold on')
-
         # 单元格
         for row in range(len(data)):  # 行
             for col in range(len(data[row])):  # 列
                 val = data[row][col]
-                self.sheets[sheet_name].write(row + 1, col, val, style)
+                self.sheets[sheet_name].write(row + 1, col, val)
                 col_num[col] = len(str(val).encode('gb18030'))
 
             col_list.append(copy.copy(col_num))
