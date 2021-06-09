@@ -45,11 +45,14 @@ class ExcelWrite:
         # 记录一行每列写入的长度
         col_list.append(copy.copy(col_num))
 
+        # 字体加粗
+        style = xlwt.easyxf('font: bold on')
+
         # 单元格
         for row in range(len(data)):  # 行
             for col in range(len(data[row])):  # 列
                 val = data[row][col]
-                self.sheets[sheet_name].write(row + 1, col, val)
+                self.sheets[sheet_name].write(row + 1, col, val, style)
                 col_num[col] = len(str(val).encode('gb18030'))
 
             col_list.append(copy.copy(col_num))
