@@ -216,11 +216,20 @@ def analysis2(time='1w'):
 
 
 # float格式化
-def getFloat(syl_1n):
-    try:
-        return float(syl_1n)
-    except Exception as e:
-        return 0.0
+def float_format(num, decimals=2):
+    str_num = str(num)
+    a1, b1, c1 = str_num.partition('.')
+    if len(c1) > decimals:
+        cc = c1[:decimals]
+        if int(c1[decimals]) >= 5:
+            ccc = int(cc) + 1
+        else:
+            ccc = int(cc)
+    else:
+        ccc = c1
+
+    # print(str(num) + '保留' + str(decimals) + '位小数：' + a1 + b1 + str(ccc))
+    return float(a1 + b1 + str(ccc))
 
 
 # 分析3：多基金各个阶段的涨跌幅情况
@@ -258,10 +267,12 @@ def analysis3():
                 if key == 'end_date':
                     all_data_base[cname][val] = data[key]
                 else:
-                    all_data_base[cname][val] = round(float(data[key]), 2)
+                    all_data_base[cname][val] = float_format(data[key])
             except:
                 all_data_base[cname][val] = 0
 
+    print(all_data_base)
+    # exit()
     # 保存数据
     fig, axes = plt.subplots(2, 1)
     # 处理基本信息
@@ -269,7 +280,7 @@ def analysis3():
     print(df2)
 
     df2.stack().unstack(0).to_excel(
-        f'{data_path}/stock_fund/danjuan_{config_key}_{time.strftime("%Y%m%d%H", time.localtime())}.xlsx',
+        f'{data_path}/stock_fund/danjuan_{config_key}_{time.strftime("%Y%m%d%H%M", time.localtime())}.xlsx',
         sheet_name='out')
     df2.iloc[1:5, :].plot.barh(ax=axes[0], grid=True, fontsize=25)
 
