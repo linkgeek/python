@@ -1,9 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+"""
+企业微信接口
+"""
+import os
 import time
 import requests
 import json
+
+work_dir = os.path.dirname(os.path.abspath(__file__))
+os.chdir(work_dir)
 
 
 class WeChat:

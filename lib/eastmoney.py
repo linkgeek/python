@@ -1,19 +1,16 @@
-import os
-import requests
-from bs4 import BeautifulSoup
+"""
+天天基金网
+"""
+
 import re
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib
 import json
 import time
+import requests
+import numpy as np
+from bs4 import BeautifulSoup
 
 
-# 天天基金爬虫
 class EastMoney:
-    def __init__(self):
-        pass
 
     # 抓取网页
     @staticmethod

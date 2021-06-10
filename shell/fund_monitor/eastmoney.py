@@ -9,19 +9,18 @@ import sys
 import os
 import operator
 
-# 绝对路径
 work_dir = os.path.dirname(os.path.abspath(__file__))
 # 把当前路径切换到文件所在的路径
 os.chdir(work_dir)
 
-sys.path.append('../')
-from lib.workwx import WeChat
+sys.path.append('../../')
 from lib.eastmoney import EastMoney
+from lib.workwx import WeChat
 
 # 加载config
 CONFIG = {}
 # FUND_CONF = os.path.join(work_dir, 'fund_config.json')
-with open('../data/fund_config.json', 'r', encoding='utf8') as f:
+with open('../data/config/fund_config.json', 'r', encoding='utf8') as f:
     CONFIG = json.load(f)
 
 
@@ -40,6 +39,7 @@ def get_fund_rise(fund_code):
 def gen_cont(show_all=False):
     rate_list = []
     for obj in CONFIG['top']:
+        print(f'loading......{obj["code"]}')
         curr_rise, prev_rise = get_fund_rise(obj['code'])
         if curr_rise is not False:
             point_rate = obj['rate']
@@ -98,7 +98,7 @@ def send_work_wx(content):
 
 def main():
     content = gen_cont()
-    print(content)
+    # print(content)
     # exit()
     send_work_wx(content)
 
