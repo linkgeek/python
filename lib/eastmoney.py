@@ -112,6 +112,5 @@ class EastMoney:
 
                 # 记录数据
                 records.append(row_records)
-            # 下一页
             page = page + 1
         return records

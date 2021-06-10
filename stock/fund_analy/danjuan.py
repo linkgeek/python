@@ -6,7 +6,7 @@ git: https://gitee.com/lyc96/fund-visualization/blob/master/main.py
 基金各个阶段涨跌幅
 近30个交易日净值情况
 """
-
+import sys
 import requests
 from lxml import etree
 from pyecharts import options as opts
@@ -24,10 +24,12 @@ import json
 import os
 import time
 
-# 绝对路径
 work_dir = os.path.dirname(os.path.abspath(__file__))
 # 把当前路径切换到文件所在的路径
 os.chdir(work_dir)
+
+sys.path.append('../../')
+from lib.helper import Helper
 
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0', }
 data_path = '../../data/'
@@ -215,23 +217,6 @@ def analysis2(time='1w'):
     print(code_value)
 
 
-# float格式化
-def float_format(num, decimals=2):
-    str_num = str(num)
-    a1, b1, c1 = str_num.partition('.')
-    if len(c1) > decimals:
-        cc = c1[:decimals]
-        if int(c1[decimals]) >= 5:
-            ccc = int(cc) + 1
-        else:
-            ccc = int(cc)
-    else:
-        ccc = c1
-
-    # print(str(num) + '保留' + str(decimals) + '位小数：' + a1 + b1 + str(ccc))
-    return float(a1 + b1 + str(ccc))
-
-
 # 分析3：多基金各个阶段的涨跌幅情况
 def analysis3():
     all_data_base = {}
@@ -267,7 +252,7 @@ def analysis3():
                 if key == 'end_date':
                     all_data_base[cname][val] = data[key]
                 else:
-                    all_data_base[cname][val] = float_format(data[key])
+                    all_data_base[cname][val] = Helper.float_format(data[key])
             except:
                 all_data_base[cname][val] = 0
 

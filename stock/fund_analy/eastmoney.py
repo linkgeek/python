@@ -20,17 +20,19 @@ work_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(work_dir)
 
 dir_path = '../../'
-path_images_png = dir_path + 'images/png/'
+path_images = dir_path + 'images/'
 
 sys.path.append(dir_path)
-from api.fund import Fund
+from lib.eastmoney import EastMoney
 
 
-# 用Python抓取天天基金网基金历史净值数据
+# 基金历史净值数据
 # https://zhuanlan.zhihu.com/p/58264923
 def analyse_history_rise(code=161725):
-    fund_c = Fund()
-    data = fund_c.get_east_rise_record(code, sdate='2018-01-01', edate='2021-06-07', per=49)
+    em = EastMoney()
+    data = em.get_rise_record(code=code, sdate='2018-01-01', edate='2021-06-07', per=49)
+    print(data)
+    exit()
     # 修改数据类型
     data['净值日期'] = pd.to_datetime(data['净值日期'], format='%Y/%m/%d')
     data['单位净值'] = data['单位净值'].astype(float)
@@ -61,7 +63,7 @@ def analyse_history_rise(code=161725):
     ax2.set_ylabel('日增长率（%）')
     plt.legend(loc='upper right')
     plt.title('基金净值数据')
-    plt.savefig(f'{path_images_png}天天基金网基金历史净值数据{code}.png')
+    plt.savefig(f'{path_images}em-{code}历史净值数据.png')
     plt.show()
 
     # 绘制分红配送信息图

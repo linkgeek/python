@@ -23,9 +23,7 @@ class WeChat:
     # 获取新access_token
     def _get_access_token(self):
         url = self.URI + 'gettoken'
-        values = {'corpid': self.CORPID,
-                  'corpsecret': self.CORPSECRET,
-                  }
+        values = {'corpid': self.CORPID, 'corpsecret': self.CORPSECRET}
         req = requests.post(url, params=values)
         data = json.loads(req.text)
         return data["access_token"]
@@ -63,10 +61,10 @@ class WeChat:
             },
             "safe": "0"
         }
-        send_msges = (bytes(json.dumps(send_values), 'utf-8'))
-        respone = requests.post(send_url, send_msges)
-        respone = respone.json()  # 当返回的数据是json串的时候直接用.json即可将respone转换成字典
-        return respone["errmsg"]
+        send_msg = (bytes(json.dumps(send_values), 'utf-8'))
+        resp = requests.post(send_url, send_msg)
+        resp = resp.json()  # 当返回的数据是json串的时候直接用.json即可将response转换成字典
+        return resp["errmsg"]
 
     # 发送markdown消息
     def send_markdown(self, message):
@@ -80,12 +78,7 @@ class WeChat:
             },
             "safe": "0"
         }
-        send_msges = (bytes(json.dumps(send_values), 'utf-8'))
-        respone = requests.post(send_url, send_msges)
-        respone = respone.json()  # 当返回的数据是json串的时候直接用.json即可将respone转换成字典
-        return respone["errmsg"]
-
-# if __name__ == '__main__':
-#     wx = WeChat()
-#     wx.send_data("这是程序发送的第1条消息！\n Python程序调用企业微信API,从自建应用“告警测试应用”发送给管理员的消息！")
-#     wx.send_data("这是程序发送的第2条消息！")
+        send_msg = (bytes(json.dumps(send_values), 'utf-8'))
+        resp = requests.post(send_url, send_msg)
+        resp = resp.json()
+        return resp["errmsg"]

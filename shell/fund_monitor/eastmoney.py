@@ -97,7 +97,7 @@ def send_work_wx(content):
 
 
 def main():
-    content = gen_cont()
+    content = gen_cont(True)
     # print(content)
     # exit()
     send_work_wx(content)

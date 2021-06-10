@@ -1,5 +1,7 @@
 import random
 
+from lib.helper import Helper
+
 
 def gen_insert_sql():
     cid = 1
@@ -19,42 +21,11 @@ d = 2.5
 e = 3
 f = 0.625
 
-
-def test_float():
-    print(round(a, 3))
-    print(round(b, 2))
-    print(round(f, 2))
-    print(round(c))
-    print(round(d))
-    print('%.2f' % f)
-
-
-# 保留2位小数
-def float_format(num, decimals=2):
-    str_num = str(num)
-    a1, b1, c1 = str_num.partition('.')
-    if len(c1) > decimals:
-        cc = c1[:decimals]
-        if int(c1[decimals]) >= 5:
-            ccc = int(cc) + 1
-        else:
-            ccc = int(cc)
-    else:
-        ccc = c1
-
-    # print(str(num) + '保留' + str(decimals) + '位小数：' + a1 + b1 + str(ccc))
-    return a1 + b1 + str(ccc)
-
-
-# test_float()
-# print('..................................')
-# print(float_format(a))
-# print(float_format(a, 3))
-# print(float_format(b))
-# print(float_format(c))
-# print(float_format(d))
-# print(float_format(e))
-# print(float_format(f))
+a3 = Helper.float_format(a, 4)
+if a3 > 1.0:
+    print('11')
+print(a3)
+exit()
 
 # str = 'liming李明'
 str = str(1.0)

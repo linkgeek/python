@@ -90,15 +90,15 @@ def gen_cont(show_all=False):
                 temp += "Pv：<font color=\"warning\">{}%</font>，".format(item['prev'])
             else:
                 temp += "Pv：<font color=\"info\">{}%</font>，".format(item['prev'])
-            temp += "<font color=\"warning\">↑</font>：<font color=\"warning\">{}%</font>，Po：{}%，Zh：{}\n""".format(
-                format(item['up'], '.2f'), format(item['rate'][1], '.1f'), item['name'])
+            temp += "<font color=\"warning\">↑</font>：<font color=\"warning\">{}%</font>，Zh：{}\n""".format(
+                format(item['up'], '.2f'), item['name'])
         elif item['up'] < 0:  # 跌
             if item['prev'] >= 0:
                 temp += "Pv：<font color=\"warning\">{}%</font>，".format(item['prev'])
             else:
                 temp += "Pv：<font color=\"info\">{}%</font>，".format(item['prev'])
-            temp += "<font color=\"info\">↑</font>：<font color=\"info\">{}%</font>，Po：{}%，Zh：{}\n""".format(
-                format(item['up'], '.2f'), format(item['rate'][0], '.1f'), item['name'])
+            temp += "<font color=\"info\">↑</font>：<font color=\"info\">{}%</font>，Zh：{}\n""".format(
+                format(item['up'], '.2f'), item['name'])
         else:
             temp = """<font color=\"comment\">failed！！</font>\n""".format(item['code'])
         warn_text += temp
@@ -120,7 +120,7 @@ def send_work_wx(content):
 
 
 def main():
-    content = gen_cont()
+    content = gen_cont(True)
     # print(content)
     # exit()
     send_work_wx(content)
