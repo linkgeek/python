@@ -1,5 +1,5 @@
 # encoding=utf8
-from helper.MysqlHelper import *
+from lib.MysqlHelper import *
 
 sql = 'select * from student where id=%s'
 id = input("请输入id：")

@@ -1,5 +1,5 @@
 # encoding=utf8
-from helper.MysqlHelper import *
+from lib.MysqlHelper import *
 
 sql = 'update student set name=%s, gender=%s where id=%s'
 id = input('请输入编号：')

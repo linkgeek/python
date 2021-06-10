@@ -1,5 +1,5 @@
 # encoding=utf8
-from helper.MysqlHelper import *
+from lib.MysqlHelper import *
 
 sql = 'insert into student(name, gender) values(%s, %s)'
 name = input("请输入用户名：")

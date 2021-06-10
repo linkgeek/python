@@ -67,6 +67,26 @@ class Mmysqli:
             print(e)
         return list_data
 
+    def insert(self, sql, params=()):
+        return self.__edit(sql, params)
+
+    def update(self, sql, params=()):
+        return self.__edit(sql, params)
+
+    def delete(self, sql, params=()):
+        return self.__edit(sql, params)
+
+    def __edit(self, sql, params):
+        count = 0
+        try:
+            self.connect()
+            count = self.cursor.execute(sql, params)
+            self.conn.commit()
+            self.close()
+        except Exception as e:
+            print(e)
+        return count
+
     # 关闭链接
     def close(self):
         self.cursor.close()

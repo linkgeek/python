@@ -1,5 +1,7 @@
 #!/usr/local/bin/python3
-# 基金涨跌提醒 监控
+"""
+天天基金 涨跌估值 提醒监控
+"""
 
 import time
 import json
@@ -13,9 +15,7 @@ work_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(work_dir)
 
 sys.path.append('../')
-from api.workwx import WeChat
-
-sys.path.append('../../')
+from lib.workwx import WeChat
 from lib.eastmoney import EastMoney
 
 # 加载config
@@ -26,7 +26,7 @@ with open('../data/fund_config.json', 'r', encoding='utf8') as f:
 
 
 # 获取基金涨幅
-def get_fund_rate(fund_code):
+def get_fund_rise(fund_code):
     em = EastMoney()
     # 实时估值
     gz = em.get_realtime_rise_js(fund_code)
@@ -40,14 +40,14 @@ def get_fund_rate(fund_code):
 def gen_cont(show_all=False):
     rate_list = []
     for obj in CONFIG['top']:
-        curr_rise, prev_rise = get_fund_rate(obj['code'])
-        print(curr_rise, prev_rise)
+        curr_rise, prev_rise = get_fund_rise(obj['code'])
         if curr_rise is not False:
             point_rate = obj['rate']
             if point_rate[0] < curr_rise < point_rate[1] and show_all is False:
                 continue
         else:
             curr_rise = 0
+
         code_dict = {
             'code': obj['code'],
             'up': curr_rise,

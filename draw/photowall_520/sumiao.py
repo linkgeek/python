@@ -1,7 +1,7 @@
 # 素描
 from PIL import Image, ImageFilter, ImageOps
 
-img = Image.open('./images/12.jpg')
+img = Image.open('images/12.jpg')
 
 
 def dodge(a, b, alpha):

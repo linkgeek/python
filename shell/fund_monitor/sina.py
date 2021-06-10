@@ -1,5 +1,8 @@
 #!/usr/local/bin/python3
-# 基金涨跌提醒 监控
+"""
+基金涨跌估值 提醒 监控
+新浪财经 - 基金涨幅估值不准确
+"""
 
 import re
 import time
@@ -11,13 +14,13 @@ import requests
 from bs4 import BeautifulSoup
 
 
-# 绝对路径
+# 父级绝对路径 G:\Code\python\shell\fund_monitor
 work_dir = os.path.dirname(os.path.abspath(__file__))
 # 把当前路径切换到文件所在的路径
 os.chdir(work_dir)
 
 sys.path.append('../')
-from api.workwx import WeChat
+from lib.workwx import WeChat
 
 # 加载config
 CONFIG = {}
@@ -26,8 +29,8 @@ with open('../data/fund_config.json', 'r', encoding='utf8') as f:
     CONFIG = json.load(f)
 
 
-# 获取基金涨幅[新浪财经]
-def get_fund_rate(fund_code):
+# 获取基金涨幅
+def get_fund_rise(fund_code):
     """
     获取基金涨跌幅信息：信息来源（新浪财经 http://stocks.sina.cn/fund/）
     fund_code：为基金代码，若该基金不存在，返回 False，否则返回 涨跌幅比例
@@ -59,7 +62,7 @@ def get_fund_rate(fund_code):
 def gen_cont(show_all=False):
     rate_list = []
     for obj in CONFIG['top']:
-        info = get_fund_rate(obj['code'])
+        info = get_fund_rise(obj['code'])
         curr_rate = info['now']
         if curr_rate is not False:
             point_rate = obj['rate']

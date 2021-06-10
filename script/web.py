@@ -3,15 +3,15 @@
 
 import requests, json
 
+
 def requestWeb(url, server, cmd, data):
     s = json.dumps({
-        "server": server, 
-        "cmd": cmd, 
-        "data": data, 
+        "server": server,
+        "cmd": cmd,
+        "data": data,
     })
 
     return json.loads(requests.post(url, s).text)
-
 
 # if __name__ == "__main__":
 #     # test 

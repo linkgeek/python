@@ -44,7 +44,7 @@ wc = WordCloud(font_path="simhei.ttf",  # 设置字体
                random_state=42,  # 随机数
                collocations=False,  # 避免重复单词
                width=1600, height=1200, margin=10,  # 图像宽高，字间距，需要配合下面的plt.figure(dpi=xx)缩放才有效
-              )
+               )
 wc2 = wc.fit_words(word_count)
 
 # 6-3）绘制词云图

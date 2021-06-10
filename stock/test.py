@@ -4,7 +4,7 @@ import time
 import sys
 
 sys.path.append('..')
-from api.workwx import WeChat
+from lib.workwx import WeChat
 
 code_list = []
 

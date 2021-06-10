@@ -12,7 +12,7 @@ work_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(work_dir)
 
 sys.path.append('../')
-from api.mredis import MyRedis
+from lib.mredis import MyRedis
 
 # 接口
 mr = MyRedis('192.168.7.26')
