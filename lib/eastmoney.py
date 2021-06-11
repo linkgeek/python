@@ -6,6 +6,7 @@ import re
 import json
 import time
 import requests
+from lxml import etree
 import numpy as np
 from bs4 import BeautifulSoup
 
@@ -54,17 +55,19 @@ class EastMoney:
             headers = {
                 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.62 Safari/537.36'
             }
-            url = 'http://fund.eastmoney.com/%s.html' % fund_code
+            url = 'http://fund.eastmoney.com/%s.html?spm=search' % fund_code
             resp = requests.get(url, headers=headers)
-            print(time.time(), int(round(time.time() * 1000)))
-            exit()
-            # http://fundgz.1234567.com.cn/js/000001.js?rt=1623073418655  1623078163.8277621
+            # print(resp, resp.status_code)
+            # exit()
             if resp.status_code == 200:
                 resp.encoding = "UTF-8"
-                soup = BeautifulSoup(resp.text, "html.parser")
-                result = soup.findAll(attrs={"id": "gz_gszzl"})
-                prev_growth = soup.findAll(attrs={"class": "ui-font-middle ui-color-red ui-num"})
-                print(result)
+                # soup = BeautifulSoup(resp.text, "html.parser")
+                # result = soup.findAll(attrs={"id": "gz_gszzl"})
+                # prev_growth = soup.findAll(attrs={"class": "ui-font-middle ui-color-red ui-num"})
+
+                html = etree.HTML(resp.text)
+                info = html.xpath('//span[@id="gz_gszzl"]/text()')[0].strip("%")  # 估值的涨跌幅需要去掉后面的%
+                print(info)
                 exit()
                 return []
             return False

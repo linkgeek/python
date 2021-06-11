@@ -1,7 +1,10 @@
 import random
 
 from lib.helper import Helper
+from lib.eastmoney import EastMoney
 
+print(EastMoney.get_realtime_rise_page(161725))
+exit()
 
 def gen_insert_sql():
     cid = 1
