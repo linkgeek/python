@@ -20,7 +20,7 @@ work_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(work_dir)
 
 dir_path = '../../'
-path_images = dir_path + 'images/'
+path_images = dir_path + 'image/'
 
 sys.path.append(dir_path)
 from lib.eastmoney import EastMoney

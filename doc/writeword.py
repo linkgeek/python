@@ -5,7 +5,7 @@ from docx.shared import Pt, RGBColor
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 
 # 读取excel
-data = xlrd.open_workbook('data3.xlsx')
+data = xlrd.open_workbook('data3.xls')
 sheet = data.sheet_by_index(0)
 
 

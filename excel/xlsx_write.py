@@ -3,7 +3,7 @@ import time
 
 times = int(time.time())
 
-wb = xlsxwriter.Workbook("data/data" + str(times) + ".xlsx")
+wb = xlsxwriter.Workbook("data/data" + str(times) + ".xls")
 sheet1 = wb.add_worksheet("sheet1")
 
 year_format = wb.add_format({"bold": True})

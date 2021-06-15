@@ -17,8 +17,8 @@ def get_fymap_data(url_str):
     # find 'list'
     province_data_list = df.loc['list', 'data']
     heatmap_list = []
-    # load xlsx
-    geo_df = pd.read_excel("./area.xlsx")
+    # load xls
+    geo_df = pd.read_excel("./area.xls")
 
     for data_list in province_data_list:
         # ignore empty list

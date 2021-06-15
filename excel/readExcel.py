@@ -14,7 +14,7 @@ os.chdir(work_dir)
 # usecols：读取指定的列, 也可以通过名字或索引值
 
 # read_excel()用来读取excel文件，记得加文件后缀
-path = '../data/config.xlsx'
+path = '../data/config.xls'
 # pd.read_excel('例子'.decode('utf-8))
 data = pd.read_excel(path, sheet_name="Sheet1")
 valData = data['value']

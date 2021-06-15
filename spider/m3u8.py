@@ -6,7 +6,7 @@ work_dir = os.path.dirname(os.path.abspath(__file__))
 # 把当前路径切换到文件所在的路径
 os.chdir(work_dir)
 
-video_path = '../data/videos/'
+video_path = '../data/video/'
 
 
 # 获取地址
@@ -20,7 +20,7 @@ def get_path():
     for i in resp:
         if "https" in i:
             print(i)
-            down("../data/videos/" + str(count) + ".mp4", i)
+            down("../data/video/" + str(count) + ".mp4", i)
             count += 1
 
 
