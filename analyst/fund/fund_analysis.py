@@ -129,7 +129,7 @@ def main():
     time_format = lambda x: time.strftime("%Y-%m-%d", time.localtime(x / 1e3))
     all_data_base = {}
     all_data = {}
-    config_key = 'top'  # liquor_drink medical_care new_energy
+    config_key = 'liquor_drink'  # liquor_drink medical_care new_energy
     for item in CONFIG[config_key]:
         fund_code = item['code']
         print(f'downloading... {fund_code}')
@@ -166,7 +166,11 @@ def main():
             all_data_base[fS_name]['近一月收益率'] = getFloat(syl_1y)
             all_data_base[fS_name]['买入费率'] = fund_sourceRate + '%'
             all_data_base[fS_name]['买入费率(优惠)'] = fund_Rate + '%'
-            all_data_base[fS_name]['基金规模(亿元)'] = Data_fluctuationScale['series'][-1]['y']
+            if len(Data_fluctuationScale['series']) == 0:
+                fund_size = '未知'
+            else:
+                fund_size = Data_fluctuationScale['series'][-1]['y']
+            all_data_base[fS_name]['基金规模(亿元)'] = fund_size
 
         # 购买信息(费率表)
         with open(f'{PATH_CACHE}/jjfl_{fund_code}.html', 'r') as f:
@@ -217,8 +221,8 @@ def main():
                 all_data[fund_code][index] = values[count]
                 count = count + 1
 
-    print(all_data_base)
-    exit()
+    # print(all_data_base)
+    # exit()
     # 保存数据
     fig, axes = plt.subplots(2, 1)
     # 处理基本信息

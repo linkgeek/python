@@ -14,7 +14,7 @@ import requests
 from bs4 import BeautifulSoup
 
 
-# 父级绝对路径 G:\Code\python\shell\fund_monitor
+# 父级绝对路径 G:\Code\python\shell\monitor
 work_dir = os.path.dirname(os.path.abspath(__file__))
 # 把当前路径切换到文件所在的路径
 os.chdir(work_dir)

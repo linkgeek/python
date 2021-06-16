@@ -2,6 +2,7 @@ import random
 
 from lib.helper import Helper
 from lib.eastmoney import EastMoney
+from lib.mredis import MyRedis
 
 print(EastMoney.get_realtime_rise_page(161725))
 exit()
@@ -33,4 +34,7 @@ exit()
 # str = 'liming李明'
 str = str(1.0)
 # print(len(str))
-print(len(str.encode('gb18030')))
+# print(len(str.encode('gb18030')))
+
+# redisObj = MyRedis('u-3dmj-php.redis.rds.aliyuncs.com')
+# val = redisObj.str_get('123')

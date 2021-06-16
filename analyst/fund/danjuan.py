@@ -30,12 +30,12 @@ os.chdir(work_dir)
 
 sys.path.append('../../')
 from lib.helper import Helper
+from lib.danjaun import DanJuan
 
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0', }
 data_path = '../../data/'
 fund_path = data_path + 'image/'
 path_html = data_path + 'html/'
-
 
 # 饼状图
 def pie(name, value, picname, tips):
@@ -220,7 +220,7 @@ def analysis2(time='1w'):
 # 分析3：多基金各个阶段的涨跌幅情况
 def analysis3():
     all_data_base = {}
-    config_key = 'top'  # liquor_drink medical_care new_energy
+    config_key = 'liquor_drink'  # liquor_drink medical_care new_energy
     data_map = {
         'nav_grl1w': '近1周',
         'nav_grl1m': '近1月',
@@ -300,6 +300,19 @@ def analysis4():
         silder(name, value, tip)
     print(code_value)
 
+
+def analysis5():
+    config_key = 'liquor_drink'  # liquor_drink medical_care new_energy
+    dj = DanJuan()
+    all_data = []
+    for item in CONFIG[config_key]:
+        fund_code = item['code']
+        print(f'downloading... {fund_code}')
+        data = dj.get_history_yield(fund_code)
+        all_data.append(data)
+
+    print(all_data)
+
 # 分析1： 各类基金各个阶段的涨跌幅前10名
 # analysis1()
 
@@ -311,3 +324,5 @@ analysis3()
 
 # 分析4：近30个交易日净值情况
 # analysis4()
+
+# analysis5()
