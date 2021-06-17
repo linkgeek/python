@@ -4,9 +4,6 @@ from lib.helper import Helper
 from lib.eastmoney import EastMoney
 from lib.mredis import MyRedis
 
-print(EastMoney.get_realtime_rise_page(161725))
-exit()
-
 def gen_insert_sql():
     cid = 1
     num = 0
