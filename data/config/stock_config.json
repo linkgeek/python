@@ -1,6 +1,8 @@
 {
   "codes": [
-    {"code": "sz000725", "rate":  [-2, 3], "name": "招商中证白酒指数(LOF)", "remark": ""}
+
+    {"code": "sz000725", "rate":  [-2, 3], "name": "京东方A", "remark": ""},
+    {"code": "sh600905", "rate":  [-2, 3], "name": "三峡能源", "remark": ""}
   ],
   "useCache": false,
   "wait": 300

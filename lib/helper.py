@@ -1,6 +1,7 @@
 """
 助手函数方法
 """
+import json
 import requests
 import smtplib
 # 负责构造文本
@@ -12,6 +13,12 @@ from email.header import Header
 
 
 class Helper:
+    # 加载配置
+    @staticmethod
+    def load_json_config(file_name):
+        with open('../data/config/{}.json'.format(file_name), 'r', encoding='utf-8') as f:
+            config = json.load(f)
+        return config
 
     # requests.get
     @staticmethod
@@ -35,6 +42,8 @@ class Helper:
                 ccc = int(cc) + 1
             else:
                 ccc = int(cc)
+            if cc[0] == '0':
+                ccc = cc[0] + str(ccc)
         else:
             ccc = c1
         return float(a1 + b1 + str(ccc))

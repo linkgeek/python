@@ -33,8 +33,11 @@ class Sina:
         low_price = float(result.split(',')[5])
         # 成交的股票数
         deal_num = float(result.split(',')[8])
+        hp = Helper()
+        deal_num = hp.float_format(deal_num / 1000000)
+
         # 涨跌幅度
         rate = (now_price - prev_price) / prev_price * 100
-        rate = Helper().float_format(rate)
+        rate = hp.float_format(rate)
         return {'code': code, 'name': name, 'open_price': open_price, 'prev_price': prev_price, 'max_price': max_price,
-                'low_price': low_price, 'deal_num': deal_num, 'rate': rate}
+                'low_price': low_price, 'now_price': now_price, 'deal_num': deal_num, 'rate': rate}

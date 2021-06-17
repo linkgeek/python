@@ -21,11 +21,29 @@ c = 3.5
 d = 2.5
 e = 3
 f = 0.625
+h = 510.050807
 
-a3 = Helper.float_format(a, 4)
-if a3 > 1.0:
-    print('11')
-print(a3)
+print('%.2f' % a)
+print(Helper.float_format(a, 2))
+
+print('%.2f' % b)
+print(Helper.float_format(b, 2))
+
+print('%.2f' % c)
+print(Helper.float_format(c, 2))
+
+print('%.2f' % d)
+print(Helper.float_format(d, 2))
+
+print('%.2f' % e)
+print(Helper.float_format(e, 2))
+
+print('%.2f' % f)
+print(Helper.float_format(f, 2))
+
+
+print(Helper.float_format(h, 2))
+print(Helper.float_format(h, 2))
 exit()
 
 # str = 'liming李明'

@@ -2,34 +2,21 @@ import threading
 import time
 import sys
 import os
-import json
 
-# 父级绝对路径 G:\Code\python\shell\monitor
+# 绝对路径
 work_dir = os.path.dirname(os.path.abspath(__file__))
 # 把当前路径切换到文件所在的路径
 os.chdir(work_dir)
 
 root_dir = '../../../'
-
 sys.path.append(root_dir)
 from lib.helper import Helper
 from lib.sina import Sina
 from lib.workwx import WeChat
 
-
-# 获取stock 列表
-with open('../data/config/stock_config.json', 'r', encoding='utf-8') as f:
-    stock_config = json.load(f)
-
-
-# 钉钉机器人
-def send_dingding_msg(content):
-    # content: 发送内容
-    # isAtAll: 是否要@某位用户
-    json_data = {"msgtype": "text", "text": {"content": content}, "at": {"atMobiles": [], "isAtAll": False}}
-    ding_url = 'https://oapi.dingtalk.com/robot/send?access_token=dfb241394310aeb3a94d32f1b359b7382429f4b435f9f0eb605979f50b21e857'
-    # requests.post(url=ding_url, json=json_data)
-    print('预警信息发送成功!')
+# 获取stock配置
+hp = Helper()
+stock_config = hp.load_json_config('stock_config')
 
 
 # 企业微信
@@ -65,23 +52,46 @@ def to_break():
 
 
 # 循环获取每个stock 数据
-def loop_stock():
-    cont_list = []
+def loop_stock(show_all=False):
     sina = Sina()
+    stock_msg = ''
     for row in stock_config['codes']:
+        print(f'loading......{row["code"]}')
         data = sina.get_stock_realtime(row['code'])
-        print(data)
-        exit()
-        if row['rate'][0] < data['rate'] < row['rate'][1]:
+        # print(data)
+        # exit()
+        if row['rate'][0] < data['rate'] < row['rate'][1] and show_all is False:
             continue
-        content = "预警：当前股票[{0}], 涨幅[{1}%], 请查收！【股票有风险，投资需谨慎】".format(data['name'], data['rate'])
-        cont_list.append(content)
-    return cont_list
+
+        temp = "CO: {}，".format(row['code'].upper())
+        temp += "昨: {}，".format(data['prev_price'])
+        temp += "今: {}，".format(data['open_price'])
+        temp += "实时: {}，".format(data['now_price'])
+        temp += "高: {}，".format(data['max_price'])
+        temp += "低: {}，".format(data['low_price'])
+        temp += "量: {}万手，".format(data['deal_num'])
+        # 涨跌幅
+        if data['rate'] >= 0:  # 涨
+            temp += "<font color=\"warning\">↑：{}%</font>，ZH: {}\n""".format(
+                format(data['rate'], '.2f'), data['name'])
+        elif data['rate'] < 0:  # 跌
+            temp += "<font color=\"info\">↓：{}%</font>，ZH: {}\n""".format(
+                format(data['rate'], '.2f'), data['name'])
+        else:
+            temp = """<font color=\"comment\">failed！！</font>\n""".format(data['code'])
+        stock_msg += temp
+
+    body_content = "<font color=\"comment\">Sina Stock's Report. {}</font>\n".format(
+        time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+    body_content += stock_msg
+    body_content += "\n<font color=\"comment\">[The stock market is risky, investment needs to be cautious]</font>"
+    return body_content
 
 
 def main():
-    cont = loop_stock()
-    print(cont)
+    cont = loop_stock(show_all=True)
+    # print(cont)
+    WeChat().send_markdown(cont)
 
 
 if __name__ == '__main__':
