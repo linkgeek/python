@@ -15,6 +15,7 @@ os.chdir(work_dir)
 
 sys.path.append('../../')
 from lib.eastmoney import EastMoney
+from lib.helper import Helper
 from lib.workwx import WeChat
 
 # 加载config
@@ -29,6 +30,7 @@ def get_fund_rise(fund_code):
     em = EastMoney()
     # 实时估值
     gz = em.get_realtime_rise_js(fund_code)
+    # print(gz)
     # 历史交易日涨幅
     record = em.get_rise_record(fund_code, gz['jzrq'], gz['jzrq'])
     prev_rise = record[0][3]
@@ -38,6 +40,7 @@ def get_fund_rise(fund_code):
 # 生成发送内容
 def gen_cont(show_all=False):
     rate_list = []
+    hp = Helper()
     for obj in CONFIG['top']:
         print(f'loading......{obj["code"]}')
         curr_rise, prev_rise = get_fund_rise(obj['code'])
@@ -62,20 +65,16 @@ def gen_cont(show_all=False):
     warn_text = ''
     for item in sort_list:
         temp = "Co：{}，".format(item['code'])
+        # 昨天
+        if item['prev'] >= 0:
+            temp += "Pv：<font color=\"warning\">{}%</font>，".format(item['prev'])
+        else:
+            temp += "Pv：<font color=\"info\">{}%</font>，".format(item['prev'])
+        # 涨跌
         if item['up'] > 0:  # 涨
-            if item['prev'] >= 0:
-                temp += "Pv：<font color=\"warning\">{}%</font>，".format(item['prev'])
-            else:
-                temp += "Pv：<font color=\"info\">{}%</font>，".format(item['prev'])
-            temp += "<font color=\"warning\">↑</font>：<font color=\"warning\">{}%</font>，Zh：{}\n""".format(
-                format(item['up'], '.2f'), item['name'])
+            temp += "<font color=\"warning\">↑：{}%</font>，Zh：{}\n""".format(hp.float_format(item['up']), item['name'])
         elif item['up'] < 0:  # 跌
-            if item['prev'] >= 0:
-                temp += "Pv：<font color=\"warning\">{}%</font>，".format(item['prev'])
-            else:
-                temp += "Pv：<font color=\"info\">{}%</font>，".format(item['prev'])
-            temp += "<font color=\"info\">↑</font>：<font color=\"info\">{}%</font>，Zh：{}\n""".format(
-                format(item['up'], '.2f'), item['name'])
+            temp += "<font color=\"info\">↓：{}%</font>，Zh：{}\n""".format(hp.float_format(item['up']), item['name'])
         else:
             temp = """<font color=\"comment\">failed！！</font>\n""".format(item['code'])
         warn_text += temp
