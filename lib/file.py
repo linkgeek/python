@@ -1,16 +1,28 @@
 #!/usr/bin/env python
 # encoding: utf-8
-
+import os
+import time
+import pdfkit
 from urllib.request import urlopen
-from pdfminer.pdfparser import PDFParser, PDFDocument
+from pdfminer.pdfparser import PDFParser
+from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
-from pdfminer.pdfdevice import PDFDevice
-
 from pdfminer.converter import PDFPageAggregator
 from pdfminer.layout import LTTextBoxHorizontal, LAParams
 
 
-class PdfUtil:
+class FileUtil:
+
+    @staticmethod
+    def read_txt(path):
+        """
+        读取文件文本
+        path 文件路径
+        """
+        f = open(path, encoding="utf-8")
+        data = f.read()
+        f.close()
+        return data
 
     @staticmethod
     def read_pdf():
@@ -57,7 +69,18 @@ class PdfUtil:
                 # if hasattr(out, 'get_text'):
                 #     print(out.get_text())
 
+    @staticmethod
+    def get_ban_copy_page():
+        """
+        获取禁止复制网页 生成pdf
+        安装 wkhtmltopdf https://wkhtmltopdf.org/downloads.html
+        """
+        url = "https://www.jianshu.com/p/717dc02a9c21"
+        config = pdfkit.configuration(wkhtmltopdf=r'D:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe')
+        pdfkit.from_url(url, r"G:\Code\python\data\txt\%s.pdf"
+                        % time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time())), configuration=config)
 
-if __name__ == '__main__':
-    xls_util = PdfUtil()
-    xls_util.read_pdf()
+
+# if __name__ == '__main__':
+#     til = FileUtil()
+#     util.get_ban_copy_page()

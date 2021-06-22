@@ -1,9 +1,11 @@
 """
 助手函数方法
 """
+import os
 import json
 import requests
 import smtplib
+import hashlib
 # 负责构造文本
 from email.mime.text import MIMEText
 # 负责构造图片
@@ -13,6 +15,7 @@ from email.header import Header
 
 
 class Helper:
+
     # 加载配置
     @staticmethod
     def load_json_config(file_name):
@@ -98,3 +101,31 @@ class Helper:
         # print("邮件发送成功")
         # 关闭SMTP对象
         stp.quit()
+
+    @staticmethod
+    def get_md5(file_path):
+        f = open(file_path, 'rb')
+        md5obj = hashlib.md5()
+        md5obj.update(f.read())
+        md5_hash = md5obj.hexdigest()
+        f.close()
+        return str(md5_hash).upper()
+
+    # 过滤同级目录下的重复文件
+    def filter_repeat_file(self):
+        path = input("请输入需要重复文件过滤文件夹路径：")
+        file_list = os.listdir(path)
+        file_md5 = []
+        for filename in file_list:
+            md5val = self.get_md5(path + filename)
+            if md5val in file_md5:
+                print('重复文件：' + path + filename)
+                # os.remove(path + filename)
+            else:
+                file_md5.append(md5val)
+        print("处理完毕...")
+
+
+if __name__ == '__main__':
+    hp = Helper()
+    hp.filter_repeat_file()
