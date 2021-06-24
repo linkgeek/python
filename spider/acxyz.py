@@ -208,18 +208,17 @@ def open_browser(file_name):
 
 
 def main():
-    file_name = "keywords1_0622_0623"
-    open_browser(file_name)
-    exit()
+    file_name = "keywords1_0624_0625"
+    # open_browser(file_name)
+    # exit()
 
     start_time = time.perf_counter()
-    search_end_date = '06-22'
+    search_end_date = '06-24'
     data = []
 
     keywords = ("汝工作室", '乌克兰', '洋妞', '推特网红', '推特女神', '推特极品', '宅男福利', '私人玩物',
-                '骚+浪+贱', '骚 浪 贱', '91SWEATTT', 'HEGRE', '超正点', '极品萝莉', '萝莉精品', '发条少女',
-                'PR', 'P站', '魔鬼',
-                '蜜桃臀', '臀神', '美鲍', '名器', '名穴', '美穴', '黑大屌',
+                '骚+浪+贱', '骚 浪 贱', '91SWEATTT', 'HEGRE', '超正点', '极品美少女', '极品萝莉', '萝莉精品', '发条少女',
+                'PR社', 'P站', '魔鬼', '蜜桃臀', '臀神', '美鲍', '名器', '名穴', '黑大屌', '黑大雕', '双飞2', '销魂',
                 '教室', '校服', '长袜', '白长袜', 'cos', '动漫女神', '乘务员', '女仆装',
                 )
 
@@ -233,18 +232,16 @@ def main():
                  '夜夜主教', '赛高酱', '貂蝉', '王星雅', '浪味仙儿', '夏玲蔓', '涵北', '琉璃', '弥漫',
                  '来自喵星的岁酱', '橘子酱', "初音", '桃小沫沫酱', '喵喵', '萝莉小仙', '多利娅',
                  '铃木美', '可爱的小猫', '小秋秋', '可爱的小胖丁', '奈音', '妲己', '玖尾酱', '皮皮娘',
-                 '发条', '习呆呆', '姚安琪', '阿朱', '柚子猫', '软耳奶猫', '咚小姐',
+                 '发条', '习呆呆', '姚安琪', '阿朱', '柚子猫', '软耳奶猫', '咚小姐', '琉璃',
 
                  '丁丁點', '抱抱', '仙仙桃', '柚子貓', '佳多', '夏花', '佳凱小仙奶', '一小只萌宠', '温柔与霸道',
                  '香港美少女', '甜美游戏', '仙萝', '白银修女', '一只小嘤嘤', '糖心', '小情趣', '韩书妍', '樱狸子',
-                 'Fiona_o', 'Hongkongdoll', 'Melody Marks', 'Vivian', 'XiaoE', 'Lexis', 'MissWarmJ', 'AsamiSusu',
+                 'Fiona_o', 'Hongkongdoll', 'Melody Marks', 'Vivian', 'XiaoE', 'Lexis', 'MissWarm', 'AsamiSusu',
+                 '李真'
                  )
 
-    # _title = '侣自拍视频流出 极品萝莉大奶 [06-22] 爆乳E奶长腿BeautyLeg腿模PRINC新发兔女郎特辑-极
-    # 品黑丝 黑丝长腿 强制口交 爆操内射中出'
-    _title = '淫荡熟妇-天边的彩霞-风韵熟女诱惑，骚媚入骨情趣内衣大胸美穴塞跳蛋'
-    # if bool(re.search("|".join(keywords), _title, re.I)):
-    #     print('ok')
+    # _title = '暴肏穿着奶牛装的台湾美艳爆乳嫩模『PRINCESSDOLLY』双穴轮插大奶小母牛看她淫荡的样子真是爽'
+    # print(re.search("|".join(keywords), _title, re.I))
     # exit()
 
     for i in range(1, 201):
