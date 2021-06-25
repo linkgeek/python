@@ -1,4 +1,8 @@
 # 天天基金股吧、贴吧
+"""
+pip install fake_useragent
+"""
+
 import csv
 import time
 import random
@@ -10,7 +14,7 @@ from lxml import etree
 
 
 def gen_fund_csv(fund_code):
-    for page in range(1, 6372):  # 爬取多页（共6371页）
+    for page in range(1, 2):  # 爬取多页（共6371页）
         html = get_fund(fund_code, page)
         parse_fund(html, fund_code)
         time.sleep(random.uniform(1, 2))

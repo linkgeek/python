@@ -1,4 +1,8 @@
 # 天天基金股吧、贴吧
+# https://blog.csdn.net/weixin_38753213/article/details/115610433
+"""
+pip install ipython
+"""
 import pandas as pd
 import numpy as np
 import jieba
@@ -42,15 +46,15 @@ df = df.dropna()
 print(df)
 
 # 绘制词云图
-# text1 = get_cut_words(content_series=df['标题'])
-# stylecloud.gen_stylecloud(text=' '.join(text1), max_words=200,
-#                           collocations=False,
-#                           font_path='simhei.ttf',
-#                           icon_name='fas fa-heart',
-#                           size=653,
-#                           #palette='matplotlib.Inferno_9',
-#                           output_name='./基金.png')
-# Image(filename='./基金.png')
+text1 = get_cut_words(content_series=df['标题'])
+stylecloud.gen_stylecloud(text=' '.join(text1), max_words=200,
+                          collocations=False,
+                          font_path='simhei.ttf',
+                          icon_name='fas fa-heart',
+                          size=653,
+                          #palette='matplotlib.Inferno_9',
+                          output_name='./基金.png')
+Image(filename='./基金.png')
 
 
 # 获取贴吧数据
