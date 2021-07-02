@@ -148,7 +148,7 @@ toml==0.10.1
 tqdm==4.46.0
 traitlets==5.0.5
 tushare==1.2.62
-urllib3==1.25.9
+urllib3==1.26.5
 virtualenv==20.0.26
 visualdl==2.0.0b7
 Wand==0.6.6
