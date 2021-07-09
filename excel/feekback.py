@@ -16,10 +16,9 @@ os.chdir(work_dir)
 # usecols：读取指定的列, 也可以通过名字或索引值
 
 # read_excel()用来读取excel文件，记得加文件后缀
-# path = '../data/对话记录1-2362.xls'
-path = './对话记录1-2362.xls'
+path = './机器人对话记录202106.1-661.xls'
 # pd.read_excel('例子'.decode('utf-8))
-df = pd.read_excel(path, sheet_name='1-2362')
+df = pd.read_excel(path, sheet_name='1-661')
 
 # 获取最大行，最大列
 nrows = df.shape[0]
@@ -65,21 +64,31 @@ contain_ignore = ('【收到不支持的消息类型，暂无法显示】', '你
 with open('../data/config/ignore_words.txt', 'r', encoding='UTF-8') as f:
     stopwords = f.read().split("\n")
 
-print(stopwords)
-exit()
+# print(33, nrows)
+# exit()
+
 for iRow in range(nrows):
-    cont = df.iloc[iRow, 12]
-    cont_list = cont.split("\n")
-    for i, item in enumerate(cont_list):
+    # 获取某行某列
+    cell = df.iloc[iRow, 18]
+    cell_txt = cell.split("\n")
+    cell_cont = ''
+    for i, item in enumerate(cell_txt):
+        # print(i, item)
+        # exit()
         if '访客>' in item:
-            if cont_list[i + 1] not in stopwords:
+            print(iRow + 2, i, cell_txt[i + 1])
+            if cell_txt[i + 1] in stopwords:
                 continue
-            if bool(re.search("|".join(contain_ignore), cont_list[i + 1], re.I)):
+            if bool(re.search("|".join(contain_ignore), cell_txt[i + 1], re.I)):
                 continue
-            print(i, cont_list[i + 1])
-            with open("./对话记录1-2362.txt", mode="a", encoding="utf-8") as f:
-                f.write(cont_list[i + 1].strip())
-                f.write("\n")
+            cell_cont += cell_txt[i + 1].strip() + '->'
+
+    if len(cell_cont) == 0:
+        continue
+
+    with open("./机器人对话记录202106.1-661.txt", mode="a", encoding="utf-8") as f:
+        f.write(str(iRow + 2) + ': ' + cell_cont.strip('->'))
+        f.write("\n")
 
 # head() 默认显示前5行，可在括号内填写要显示的条数
 # print('显示表格前三行:', df.head(3))
