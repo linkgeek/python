@@ -127,6 +127,7 @@ def get_data(config_key):
     time_format = lambda x: time.strftime("%Y-%m-%d", time.localtime(x / 1e3))
     all_data_base = {}
     all_data = {}
+    config_key = 'new_energy'  # liquor_drink | medical_care | new_energy | bdt
     for item in CONFIG[config_key]:
         fund_code = item['code']
         print(f'downloading... {fund_code}')

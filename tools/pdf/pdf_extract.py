@@ -49,9 +49,12 @@ def extract_table(pdf_path):
 # PDF提取表格2
 def extract_table2(pdf_path):
     pdf = pdfplumber.open(pdf_path)
+    print(11, pdf.pages)
     i = 0  # Excel起始位置
     for page in pdf.pages:  # 获取所有页面的全部信息，包括表格中的文字
+        print(22, page.extract_tables())
         for table in page.extract_tables():  # 遍历文档中的所有表格
+            print('./dd_{}.csv'.format(i + 1))
             pd.DataFrame(table).to_csv('./dd_{}.csv'.format(i + 1), index=False, mode='a')
         i += 1
 
@@ -88,8 +91,8 @@ def web_gui():
             if len(upload_path) == 0:
                 sg.popup_error('请选择文件', title='提示')
                 continue
-            print(upload_path)
-            exit()
+            # print(upload_path)
+            # exit()
             if values['text']:
                 extract_text(upload_path)
             elif values['table']:

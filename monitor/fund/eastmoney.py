@@ -96,9 +96,11 @@ def send_work_wx(content):
 
 
 def main():
-    content = gen_cont(True)
+    # content = gen_cont(True)
     # print(content)
     # exit()
+    content = "测试 -- 手机通知栏是否显示:https://s1.wsajzm.top/official.html?appid=1&provinceId=51&cityId=5101&areaId=510101&channel=1112&uid=315997&scene=10&fromId=1&_subkey=1011&empower=0&timestamp=1624501462&checkhost=1"
+    content += "\n[这是一个链接](http://work.weixin.qq.com/api/doc)"
     send_work_wx(content)
 
 
