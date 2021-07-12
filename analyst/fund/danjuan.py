@@ -37,6 +37,7 @@ data_path = '../../data/'
 fund_path = data_path + 'image/'
 path_html = data_path + 'html/'
 
+
 # 饼状图
 def pie(name, value, picname, tips):
     c = (
@@ -218,9 +219,8 @@ def analysis2(time='1w'):
 
 
 # 分析3：多基金各个阶段的涨跌幅情况
-def analysis3():
+def analysis3(config_key):
     all_data_base = {}
-    config_key = 'liquor_drink'  # liquor_drink medical_care new_energy
     data_map = {
         'nav_grl1w': '近1周',
         'nav_grl1m': '近1月',
@@ -256,19 +256,26 @@ def analysis3():
             except:
                 all_data_base[cname][val] = 0
 
-    print(all_data_base)
+    # print(all_data_base)
     # exit()
     # 保存数据
     fig, axes = plt.subplots(2, 1)
     # 处理基本信息
     df2 = DataFrame(all_data_base)
-    print(df2)
+    # print(df2)
 
-    df2.stack().unstack(0).to_excel(
-        f'{data_path}/stock_fund/danjuan_{config_key}_{time.strftime("%Y%m%d%H%M", time.localtime())}.xlsx',
+    df3 = df2.stack().unstack(0)
+    col_title = list(data_map.values())
+    color_col_title = col_title[:-1]
+    df3.style.apply(max_style, subset=color_col_title).to_excel(
+        f'{data_path}/stock_fund/danjuan_{config_key}_{time.strftime("%Y%m%d", time.localtime())}.xlsx',
         sheet_name='out')
     df2.iloc[1:5, :].plot.barh(ax=axes[0], grid=True, fontsize=25)
 
+
+def max_style(col):
+    m = col == col.max()
+    return ['color: red' if v else '' for v in m]
 
 # 分析3：获取各类基金某阶段中第一名基金的近30个交易日净值情况
 def analysis4():
@@ -313,16 +320,25 @@ def analysis5():
 
     print(all_data)
 
-# 分析1： 各类基金各个阶段的涨跌幅前10名
-# analysis1()
 
-# 分析2：各类基金第一名基金各个阶段的涨跌幅情况
-# analysis2()
+# 分析数据
+def main():
+    config_key = 'liquor_drink'  # liquor_drink medical_care new_energy
 
-# 分析3：各基金各个阶段的涨跌幅情况
-analysis3()
+    # 分析1： 各类基金各个阶段的涨跌幅前10名
+    # analysis1()
 
-# 分析4：近30个交易日净值情况
-# analysis4()
+    # 分析2：各类基金第一名基金各个阶段的涨跌幅情况
+    # analysis2()
 
-# analysis5()
+    # 分析3：各基金各个阶段的涨跌幅情况
+    analysis3(config_key)
+
+    # 分析4：近30个交易日净值情况
+    # analysis4()
+
+    # analysis5()
+
+
+if __name__ == '__main__':
+    main()
