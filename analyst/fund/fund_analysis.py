@@ -127,7 +127,7 @@ def get_data(config_key):
     time_format = lambda x: time.strftime("%Y-%m-%d", time.localtime(x / 1e3))
     all_data_base = {}
     all_data = {}
-    config_key = 'new_energy'  # liquor_drink | medical_care | new_energy | bdt
+    config_key = 'liquor_drink'  # liquor_drink | medical_care | new_energy | bdt
     for item in CONFIG[config_key]:
         fund_code = item['code']
         print(f'downloading... {fund_code}')
@@ -234,11 +234,12 @@ def gen_xls_pic(config_key):
     print(df2)
     # exit()
 
-    # stack
-    df2.stack().unstack(0).to_excel(
+    # df.stack() 列索引→行索引    df.unstack() 行索引→列索引
+    df3 = df2.stack().unstack(0)
+    color_col_title = ['近一年收益率', '近六月收益率', '近三月收益率', '近一月收益率']
+    df3.style.highlight_max(subset=color_col_title, color='red', axis=0).to_excel(
         f'{DATA_PATH}/stock_fund/{config_key}_{time.strftime("%Y%m%d%H", time.localtime())}.xlsx', sheet_name='out')
-    df2.iloc[1:5, :].plot.barh(ax=axes[0], grid=True, fontsize=25)
-    df2.style.highlight_min(axis=1)
+    df3.iloc[1:5, :].plot.barh(ax=axes[0], grid=True, fontsize=25)
 
     # 处理收益
     df = DataFrame(all_data).sort_index().fillna(method='ffill')
