@@ -30,9 +30,11 @@ def get_fund_rise(fund_code):
     em = EastMoney()
     # 实时估值
     gz = em.get_realtime_rise_js(fund_code)
-    # print(gz)
+
     # 历史交易日涨幅
     record = em.get_rise_record(fund_code, gz['jzrq'], gz['jzrq'])
+    print(gz, record, record[0][3])
+
     prev_rise = record[0][3]
     return float(gz['gszzl']), float(prev_rise.split("%")[0])
 
