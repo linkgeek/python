@@ -16,9 +16,10 @@ os.chdir(work_dir)
 # usecols：读取指定的列, 也可以通过名字或索引值
 
 # read_excel()用来读取excel文件，记得加文件后缀
-path = './机器人对话记录202106.1-661.xls'
+file_name = '对话记录1-9'
+path = f'./{file_name}.xlsx'
 # pd.read_excel('例子'.decode('utf-8))
-df = pd.read_excel(path, sheet_name='1-661')
+df = pd.read_excel(path, sheet_name='1-9')
 
 # 获取最大行，最大列
 nrows = df.shape[0]
@@ -69,7 +70,12 @@ with open('../data/config/ignore_words.txt', 'r', encoding='UTF-8') as f:
 
 for iRow in range(nrows):
     # 获取某行某列
-    cell = df.iloc[iRow, 18]
+    cell = df.iloc[iRow, ncols-1]
+    print(nrows, ncols, cell)
+    if cell != cell:
+        print('cell is nan')
+        break
+
     cell_txt = cell.split("\n")
     cell_cont = ''
     for i, item in enumerate(cell_txt):
@@ -77,8 +83,8 @@ for iRow in range(nrows):
         # exit()
         if '访客>' in item:
             print(iRow + 2, i, cell_txt[i + 1])
-            if cell_txt[i + 1] in stopwords:
-                continue
+            # if cell_txt[i + 1] in stopwords:
+            #     continue
             if bool(re.search("|".join(contain_ignore), cell_txt[i + 1], re.I)):
                 continue
             cell_cont += cell_txt[i + 1].strip() + '->'
@@ -86,7 +92,7 @@ for iRow in range(nrows):
     if len(cell_cont) == 0:
         continue
 
-    with open("./机器人对话记录202106.1-661.txt", mode="a", encoding="utf-8") as f:
+    with open(f"./{file_name}.txt", mode="a", encoding="utf-8") as f:
         f.write(str(iRow + 2) + ': ' + cell_cont.strip('->'))
         f.write("\n")
 

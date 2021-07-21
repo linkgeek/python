@@ -2,3 +2,6 @@
 .vscode
 /data/
 /hello-python/doc
+*.csv
+*.xls
+*.xlsx
